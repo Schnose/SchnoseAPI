@@ -33,6 +33,9 @@ features = ["derive"]
 [workspace.dependencies.serde_json]
 version = "1"
 
+[workspace.dependencies.toml]
+version = "0.5"
+
 # GOKZ
 [workspace.dependencies.gokz_rs]
 version = "0.18"
