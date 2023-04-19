@@ -1,0 +1,2 @@
+connect:
+  ./schnosedb/connect.sh
