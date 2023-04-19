@@ -1,29 +1,18 @@
-#![allow(unused_imports)]
-
 use {
-	::serde::{Deserialize, Serialize},
-	clap::{Parser, Subcommand, ValueEnum},
-	color_eyre::{
-		eyre::{bail as yeet, Context},
-		Result,
-	},
+	clap::Parser,
+	color_eyre::{eyre::Context, Result},
 	config::get_config,
 	elastic_scraper::elastic,
 	elasticsearch::{
 		auth::Credentials,
 		http::{
-			request::JsonBody,
 			transport::{SingleNodeConnectionPool, TransportBuilder},
 			Url,
 		},
-		Elasticsearch, Scroll, ScrollParts, SearchParts,
+		Elasticsearch, SearchParts,
 	},
-	std::{
-		path::PathBuf,
-		time::{Duration, Instant},
-	},
-	tracing::{debug, error, info, trace, warn, Level},
-	tracing_subscriber::fmt::format::FmtSpan,
+	std::{path::PathBuf, time::Instant},
+	tracing::{debug, info, trace, Level},
 };
 
 mod config;
