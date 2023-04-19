@@ -58,8 +58,9 @@ async fn main() -> Result<()> {
 
 	tracing_subscriber::fmt()
 		.compact()
-		.with_line_number(true)
-		.with_file(true)
+		.with_line_number(false)
+		.with_file(false)
+		.without_time()
 		.with_max_level(args.log_level)
 		.init();
 
@@ -85,18 +86,18 @@ async fn main() -> Result<()> {
 						.fetch_one(&database_connection)
 						.await
 						.context("Failed to get initial record id from database.")?
-						.0
+						.0 + 1
 				}
 			};
 
 			fetch_records::fetch_and_insert(start_id, &gokz_client, &database_connection).await?;
-			info!("Done. (took {})", format_time(start.elapsed().as_secs_f64()));
+			info!("Done. (took {:?})", start.elapsed());
 		}
 
 		Data::Players { start_offset } => {
 			fetch_players::fetch_and_insert(start_offset, &gokz_client, &database_connection)
 				.await?;
-			info!("Done. (took {})", format_time(start.elapsed().as_secs_f64()));
+			info!("Done. (took {:?})", start.elapsed());
 		}
 	};
 
@@ -105,17 +106,3 @@ async fn main() -> Result<()> {
 
 #[derive(sqlx::FromRow)]
 struct RecordID(u32);
-
-fn format_time(seconds: f64) -> String {
-	let hours = (seconds / 3600.0) as u8;
-	let minutes = ((seconds % 3600.0) / 60.0) as u8;
-	let seconds = seconds % 60.0;
-
-	let mut formatted = format!("{minutes:02}:{seconds:06.3}");
-
-	if hours > 0 {
-		formatted = format!("{hours:02}:{formatted}");
-	}
-
-	formatted
-}

@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS maps (
 	global      BOOLEAN               NOT NULL DEFAULT FALSE,
 	filesize    INT          UNSIGNED NOT NULL,
 	approved_by INT          UNSIGNED NOT NULL,
+	workshop_id INT          UNSIGNED,
 	created_on  TIMESTAMP             NOT NULL,
 	updated_on  TIMESTAMP             NOT NULL,
 

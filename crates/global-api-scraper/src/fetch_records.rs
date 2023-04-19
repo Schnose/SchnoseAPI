@@ -7,7 +7,7 @@ use {
 		types::chrono::{DateTime, Utc},
 		MySql, Pool, QueryBuilder,
 	},
-	tracing::warn,
+	tracing::{info, warn},
 };
 
 const ZPAMM: u32 = 17690692;
@@ -55,6 +55,8 @@ pub async fn fetch_and_insert(
 				player.id
 			}
 			None => {
+				warn!("New player: {} ({})", record.player_name, record.steam_id);
+
 				sqlx::query("INSERT INTO players (id, name, is_banned) VALUES (?, ?, ?)")
 					.bind(record.steam_id.as_id32())
 					.bind(record.player_name)
@@ -85,6 +87,8 @@ pub async fn fetch_and_insert(
 				server.id
 			}
 			None => {
+				warn!("New server: {}", record.server_name);
+
 				let server =
 					global_api::get_server(&ServerIdentifier::ID(record.server_id), gokz_client)
 						.await
@@ -121,7 +125,7 @@ pub async fn fetch_and_insert(
 		let mut query = QueryBuilder::new(
 			r#"
 			INSERT INTO records
-			  VALUES (id, course_id, mode_id, player_id, server_id, time, teleports, created_on)
+			  (id, course_id, mode_id, player_id, server_id, time, teleports, created_on)
 			"#,
 		);
 
@@ -129,7 +133,7 @@ pub async fn fetch_and_insert(
 			query
 				.push_bind(record.id)
 				.push_bind(record.course_id)
-				.push_bind(record.mode_id)
+				.push_bind(record.mode_id as u16)
 				.push_bind(record.player_id)
 				.push_bind(record.server_id)
 				.push_bind(record.time)
@@ -142,6 +146,8 @@ pub async fn fetch_and_insert(
 			.execute(database_connection)
 			.await
 			.context("Failed to insert record into database.")?;
+
+		info!("[#{id}] Inserted record.");
 
 		std::thread::sleep(FETCH_DELAY);
 	}

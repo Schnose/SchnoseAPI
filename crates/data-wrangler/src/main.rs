@@ -8,7 +8,7 @@ use {
 	gokz_rs::global_api,
 	sqlx::mysql::MySqlPoolOptions,
 	std::{path::PathBuf, time::Instant},
-	tracing::{info, trace, Level},
+	tracing::{debug, info, trace, Level},
 };
 
 mod config;
@@ -60,25 +60,42 @@ async fn main() -> Result<()> {
 
 	info!("Initialized logging with level `{}`.", args.log_level);
 
+	if !args.output_path.is_file() && !args.output_path.is_dir() {
+		yeet!("`output` must be a file or a directory.");
+	}
+
 	let config = config::get_config(&args.config_path)?;
 
 	let start = Instant::now();
-	let total_records = 0;
+	let total_objects = 0;
 
 	let values: Vec<serde_json::Value> = if args.input_path.is_file() {
+		debug!("Reading single file.");
 		let json =
 			std::fs::read_to_string(&args.input_path).context("Failed to read JSON file.")?;
 
-		vec![serde_json::from_str(&json).context("Failed to parse JSON.")?]
+		serde_json::from_str::<serde_json::Value>(&json)
+			.context("Failed to parse JSON.")?
+			.as_array()
+			.unwrap()
+			.to_owned()
 	} else if args.input_path.is_dir() {
+		debug!("Reading directory.");
 		let mut values = Vec::new();
 		for entry in std::fs::read_dir(&args.input_path)? {
 			let entry = entry?;
 			let path = entry.path();
 			if path.is_file() {
+				debug!("Reading file.");
 				let json = std::fs::read_to_string(&path).context("Failed to read JSON file.")?;
 
-				values.push(serde_json::from_str(&json).context("Failed to parse JSON.")?)
+				values.extend(
+					serde_json::from_str::<serde_json::Value>(&json)
+						.context("Failed to parse JSON.")?
+						.as_array()
+						.unwrap()
+						.to_owned(),
+				)
 			}
 		}
 		values
@@ -91,64 +108,59 @@ async fn main() -> Result<()> {
 		.await
 		.context("Failed to establish database connection.")?;
 
-	let values = serde_json::Value::Array(values);
 	let first_value = &values[0];
+	dbg!(first_value);
 
 	if serde_json::from_value::<ElasticRecord>(first_value.clone()).is_ok() {
-		return parse_elastic_records::parse(
-			serde_json::from_value(values).context("Failed to parse array of elastic records.")?,
-			&database_connection,
-			&args,
-		)
-		.await;
+		let mut records = Vec::new();
+
+		for record in values {
+			records.push(
+				serde_json::from_value(record)
+					.context("Failed to parse array of elastic records.")?,
+			);
+		}
+
+		return parse_elastic_records::parse(records, &database_connection, &args)
+			.await
+			.context(format!("failed after {:?}", start.elapsed()));
 	}
 
 	if serde_json::from_value::<global_api::Record>(first_value.clone()).is_ok() {
-		return parse_globalapi_records::parse(
-			serde_json::from_value(values).context("Failed to parse array of elastic records.")?,
-			&args,
-		);
+		let mut records = Vec::new();
+
+		for record in values {
+			records
+				.push(serde_json::from_value(record).context("Failed to parse elastic record.")?);
+		}
+
+		return parse_globalapi_records::parse(records, &args)
+			.context(format!("failed after {:?}", start.elapsed()));
 	}
 
 	if serde_json::from_value::<global_api::Player>(first_value.clone()).is_ok() {
-		return parse_globalapi_players::parse(
-			serde_json::from_value(values).context("Failed to parse array of elastic records.")?,
-			&args,
-		);
+		let mut players = Vec::new();
+
+		for player in values {
+			players.push(serde_json::from_value(player).context("Failed to parse player.")?);
+		}
+
+		return parse_globalapi_players::parse(players, &args)
+			.context(format!("failed after {:?}", start.elapsed()));
 	}
 
-	if serde_json::from_value::<global_api::Server>(first_value.clone()).is_ok() {
-		return parse_globalapi_servers::parse(
-			serde_json::from_value(values).context("Failed to parse array of elastic records.")?,
-			&args,
-		);
+	if serde_json::from_value::<parse_globalapi_servers::Server>(first_value.clone()).is_ok() {
+		let mut servers = Vec::new();
+
+		for server in values {
+			servers.push(serde_json::from_value(server).context("Failed to parse server.")?);
+		}
+
+		return parse_globalapi_servers::parse(servers, &args)
+			.context(format!("failed after {:?}", start.elapsed()));
 	}
 
-	info!(
-		"Done. Parsed {} records in total. (took {})",
-		total_records,
-		format_time(start.elapsed().as_secs_f64())
-	);
+	info!("Done. Parsed {} objectcs in total. (took {:?})", total_objects, start.elapsed());
 
 	Ok(())
-}
-
-#[derive(sqlx::FromRow)]
-struct MapID(u16);
-
-#[derive(sqlx::FromRow)]
-struct ServerID(u16);
-
-fn format_time(seconds: f64) -> String {
-	let hours = (seconds / 3600.0) as u8;
-	let minutes = ((seconds % 3600.0) / 60.0) as u8;
-	let seconds = seconds % 60.0;
-
-	let mut formatted = format!("{minutes:02}:{seconds:06.3}");
-
-	if hours > 0 {
-		formatted = format!("{hours:02}:{formatted}");
-	}
-
-	formatted
 }

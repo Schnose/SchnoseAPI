@@ -1,6 +1,7 @@
 [workspace]
 members = [
 	"schnosedb",
+	"schnose-api",
 	"crates/elastic-scraper",
 	"crates/data-wrangler",
 	"crates/global-api-scraper",
