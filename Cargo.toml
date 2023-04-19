@@ -1,5 +1,10 @@
 [workspace]
-members = ["schnosedb", "crates/elastic-scraper", "crates/data-wrangler"]
+members = [
+	"schnosedb",
+	"crates/elastic-scraper",
+	"crates/data-wrangler",
+	"crates/global-api-scraper",
+]
 
 # Error handling
 [workspace.dependencies.color-eyre]
