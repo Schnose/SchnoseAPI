@@ -3,10 +3,9 @@ use {
 	color_eyre::{eyre::Context, Result},
 	gokz_rs::global_api::Player,
 	schnosedb::models::PlayerRow,
-	sqlx::{MySql, Pool},
 };
 
-pub fn parse(players: Vec<Player>, database_connection: &Pool<MySql>, args: &Args) -> Result<()> {
+pub fn parse(players: Vec<Player>, args: &Args) -> Result<()> {
 	let players = players
 		.into_iter()
 		.map(|player| PlayerRow {
@@ -17,5 +16,5 @@ pub fn parse(players: Vec<Player>, database_connection: &Pool<MySql>, args: &Arg
 		.collect::<Vec<_>>();
 
 	let bytes = serde_json::to_vec(&players).context("Failed to serialize records.")?;
-	std::fs::write(&args.output_path, &bytes).context("Failed to write JSON to disk.")
+	std::fs::write(&args.output_path, bytes).context("Failed to write JSON to disk.")
 }

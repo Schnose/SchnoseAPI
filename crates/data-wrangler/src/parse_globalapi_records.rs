@@ -2,17 +2,10 @@ use {
 	crate::Args,
 	color_eyre::{eyre::Context, Result},
 	gokz_rs::global_api::Record,
-	sqlx::{
-		types::chrono::{DateTime, Utc},
-		MySql, Pool,
-	},
+	sqlx::types::chrono::{DateTime, Utc},
 };
 
-pub fn parse(
-	elastic_records: Vec<Record>,
-	database_connection: &Pool<MySql>,
-	args: &Args,
-) -> Result<()> {
+pub fn parse(elastic_records: Vec<Record>, args: &Args) -> Result<()> {
 	let mut records = Vec::new();
 
 	for record in elastic_records {
@@ -34,5 +27,5 @@ pub fn parse(
 	}
 
 	let bytes = serde_json::to_vec(&records).context("Failed to serialize records.")?;
-	std::fs::write(&args.output_path, &bytes).context("Failed to write JSON to disk.")
+	std::fs::write(&args.output_path, bytes).context("Failed to write JSON to disk.")
 }

@@ -12,7 +12,6 @@ use {
 };
 
 mod config;
-mod save;
 
 mod parse_elastic_records;
 
@@ -27,7 +26,7 @@ mod parse_globalapi_servers;
 ///   - GlobalAPI Players
 ///   - GlobalAPI Servers
 #[derive(Debug, Parser)]
-struct Args {
+pub struct Args {
 	/// `RUST_LOG` level
 	#[arg(long = "logs")]
 	#[clap(default_value = "INFO")]
@@ -64,7 +63,7 @@ async fn main() -> Result<()> {
 	let config = config::get_config(&args.config_path)?;
 
 	let start = Instant::now();
-	let mut total_records = 0;
+	let total_records = 0;
 
 	let values: Vec<serde_json::Value> = if args.input_path.is_file() {
 		let json =
@@ -107,7 +106,6 @@ async fn main() -> Result<()> {
 	if serde_json::from_value::<global_api::Record>(first_value.clone()).is_ok() {
 		return parse_globalapi_records::parse(
 			serde_json::from_value(values).context("Failed to parse array of elastic records.")?,
-			&database_connection,
 			&args,
 		);
 	}
@@ -115,7 +113,6 @@ async fn main() -> Result<()> {
 	if serde_json::from_value::<global_api::Player>(first_value.clone()).is_ok() {
 		return parse_globalapi_players::parse(
 			serde_json::from_value(values).context("Failed to parse array of elastic records.")?,
-			&database_connection,
 			&args,
 		);
 	}
@@ -123,7 +120,6 @@ async fn main() -> Result<()> {
 	if serde_json::from_value::<global_api::Server>(first_value.clone()).is_ok() {
 		return parse_globalapi_servers::parse(
 			serde_json::from_value(values).context("Failed to parse array of elastic records.")?,
-			&database_connection,
 			&args,
 		);
 	}

@@ -43,5 +43,5 @@ pub async fn parse(
 	}
 
 	let bytes = serde_json::to_vec(&records).context("Failed to serialize records.")?;
-	std::fs::write(&args.output_path, &bytes).context("Failed to write JSON to disk.")
+	std::fs::write(&args.output_path, bytes).context("Failed to write JSON to disk.")
 }
