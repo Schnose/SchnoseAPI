@@ -21,3 +21,5 @@ chrono = { workspace = true }
 gokz_rs = { workspace = true }
 tokio = { workspace = true }
 sqlx = { workspace = true }
+
+elastic-scraper = { path = "../crates/elastic-scraper" }

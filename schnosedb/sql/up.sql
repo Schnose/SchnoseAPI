@@ -67,11 +67,11 @@ CREATE TABLE IF NOT EXISTS records (
 	-- REFERENCES courses (id)
 	course_id  INT      UNSIGNED NOT NULL,
 	-- REFERENCES modes (id)
-	mode_id    INT      UNSIGNED NOT NULL,
+	mode_id    TINYINT  UNSIGNED NOT NULL,
 	-- REFERENCES players (id)
 	player_id  INT      UNSIGNED NOT NULL,
 	-- REFERENCES servers (id)
-	server_id  INT      UNSIGNED NOT NULL,
+	server_id  SMALLINT UNSIGNED NOT NULL,
 	time       DOUBLE            NOT NULL,
 	teleports  SMALLINT UNSIGNED NOT NULL,
 	created_on TIMESTAMP         NOT NULL,
