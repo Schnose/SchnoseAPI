@@ -27,3 +27,7 @@ schnosedb = { path = "../schnosedb" }
 [dependencies.axum]
 version = "0.6"
 features = ["macros"]
+
+[dependencies.time]
+version = "0.3"
+features = ["macros"]

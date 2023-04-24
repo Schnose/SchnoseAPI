@@ -20,7 +20,7 @@ version = "0.1"
 
 [workspace.dependencies.tracing-subscriber]
 version = "0.3"
-features = ["json"]
+features = ["json", "time"]
 
 # CLI
 [workspace.dependencies.clap]
