@@ -31,6 +31,9 @@ features = ["derive"]
 [workspace.dependencies.chrono]
 version = "0.4"
 
+[workspace.dependencies.itertools]
+version = "0.10"
+
 # JSON parsing
 [workspace.dependencies.serde]
 version = "1"

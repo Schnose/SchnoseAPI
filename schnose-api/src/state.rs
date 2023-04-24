@@ -21,4 +21,8 @@ impl APIState {
 			),
 		})
 	}
+
+	pub fn db(&self) -> &Pool<MySql> {
+		&self.database_connection
+	}
 }

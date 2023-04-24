@@ -5,18 +5,23 @@
 #![deny(clippy::perf, clippy::correctness)]
 
 use {
-	axum::{routing::get, Router, Server},
+	axum::{routing::get, Router, Server, ServiceExt},
 	clap::Parser,
 	color_eyre::{eyre::Context, Result},
 	config::Config,
 	state::APIState,
 	std::{net::SocketAddr, path::PathBuf},
 	time::macros::format_description as time,
+	tower::layer::Layer,
+	tower_http::normalize_path::NormalizePathLayer,
 	tracing::{info, Level},
 	tracing_subscriber::fmt::{format::FmtSpan, time::UtcTime},
 };
 
 mod config;
+mod error;
+mod response;
+mod routes;
 mod state;
 
 #[derive(Debug, Parser)]
@@ -64,7 +69,11 @@ async fn main() -> Result<()> {
 
 	let router = Router::new()
 		.route("/", get(|| async { "(͡ ͡° ͜ つ ͡͡°)" }))
+		.route("/api/modes", get(routes::modes::root::get))
+		.route("/api/modes/:ident", get(routes::modes::ident::get))
 		.with_state(state);
+
+	let router = NormalizePathLayer::trim_trailing_slash().layer(router);
 
 	server
 		.serve(router.into_make_service())
