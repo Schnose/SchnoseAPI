@@ -7,6 +7,7 @@ pub struct MapRow {
 	pub global: bool,
 	pub filesize: u32,
 	pub approved_by: u32,
+	pub workshop_id: Option<u32>,
 
 	#[serde(
 		serialize_with = "crate::serialize_datetime",

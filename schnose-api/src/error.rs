@@ -59,12 +59,11 @@ impl From<sqlx::Error> for Error {
 	}
 }
 
-#[allow(unused)]
+#[macro_export]
 macro_rules! yeet {
 	($error:expr) => {
 		return Err($error.into());
 	};
 }
 
-#[allow(unused)]
-pub(crate) use yeet;
+pub use yeet;

@@ -8,7 +8,7 @@ mod maps;
 pub use maps::MapRow;
 
 mod mappers;
-pub use mappers::MapperRow;
+pub use mappers::{JoinedMapperRow, MapperRow};
 
 mod courses;
 pub use courses::CourseRow;
