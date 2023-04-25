@@ -12,13 +12,13 @@ pub struct APIState {
 impl APIState {
 	#[tracing::instrument(skip(connection_string))]
 	pub async fn new(connection_string: &str) -> Result<Self> {
+		let database_connection = MySqlPoolOptions::new()
+			.connect(connection_string)
+			.await
+			.context("Failed to establish database connection.")?;
+
 		Ok(Self {
-			database_connection: Arc::new(
-				MySqlPoolOptions::new()
-					.connect(connection_string)
-					.await
-					.context("Failed to establish database connection.")?,
-			),
+			database_connection: Arc::new(database_connection),
 		})
 	}
 

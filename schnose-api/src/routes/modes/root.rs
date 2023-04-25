@@ -11,7 +11,7 @@ use {
 pub async fn get(State(state): State<APIState>) -> Response<Vec<Mode>> {
 	trace!("GET /api/modes");
 
-	let modes: Vec<ModeRow> = sqlx::query_as(r#"SELECT * FROM modes"#)
+	let modes: Vec<ModeRow> = sqlx::query_as("SELECT * FROM modes")
 		.fetch_all(state.db())
 		.await?;
 

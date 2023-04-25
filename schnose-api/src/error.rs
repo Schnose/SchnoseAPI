@@ -4,7 +4,7 @@ use {
 	tracing::{error, warn},
 };
 
-// pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Clone, PartialEq, Error)]
 pub enum Error {

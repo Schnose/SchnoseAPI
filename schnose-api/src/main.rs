@@ -19,7 +19,6 @@ use {
 };
 
 mod config;
-mod error;
 mod response;
 mod routes;
 mod state;
