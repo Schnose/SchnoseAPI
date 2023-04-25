@@ -70,6 +70,8 @@ async fn main() -> Result<()> {
 		.route("/", get(|| async { "(͡ ͡° ͜ つ ͡͡°)" }))
 		.route("/api/modes", get(routes::modes::root::get))
 		.route("/api/modes/:ident", get(routes::modes::ident::get))
+		.route("/api/players", get(routes::players::root::get))
+		.route("/api/players/:ident", get(routes::players::ident::get))
 		.with_state(state);
 
 	let router = NormalizePathLayer::trim_trailing_slash().layer(router);
