@@ -1,8 +1,12 @@
 use {
-	crate::error::{yeet, Error, Result},
+	crate::{
+		error::{yeet, Error, Result},
+		serde::Bool,
+	},
 	gokz_rs::SteamID,
 	schnosedb::models::PlayerRow,
 	serde::{Deserialize, Serialize},
+	sqlx::FromRow,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -10,6 +14,13 @@ pub struct Player {
 	pub name: String,
 	pub steam_id: SteamID,
 	pub is_banned: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, FromRow)]
+pub struct PlayerQuery {
+	pub id: u32,
+	pub name: String,
+	pub is_banned: Bool,
 }
 
 impl TryFrom<PlayerRow> for Player {

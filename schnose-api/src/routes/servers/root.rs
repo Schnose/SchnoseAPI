@@ -1,11 +1,11 @@
 use {
 	crate::{response::Response, state::APIState},
 	axum::extract::{Query, State},
-	gokz_rs::{PlayerIdentifier, SteamID},
+	gokz_rs::PlayerIdentifier,
 	itertools::Itertools,
 	schnose_api::{
 		error::{yeet, Error},
-		models::{Server, ServerOwner, ServerQuery},
+		models::{Server, ServerQuery},
 	},
 	serde::Deserialize,
 	sqlx::QueryBuilder,
@@ -84,17 +84,7 @@ pub async fn get(
 
 	let servers = servers
 		.into_iter()
-		.map(|server| Server {
-			id: server.id,
-			name: server.name,
-			owned_by: server
-				.owned_by
-				.0
-				.and_then(|owner| ServerOwner::try_from(owner).ok()),
-			approved_by: server
-				.approved_by
-				.and_then(|id| (id != 0).then_some(SteamID::from_id32(id))),
-		})
+		.map(Into::into)
 		.collect_vec();
 
 	Ok(servers.into())

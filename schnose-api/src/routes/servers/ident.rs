@@ -1,10 +1,10 @@
 use {
 	crate::{response::Response, state::APIState},
 	axum::extract::{Path, State},
-	gokz_rs::{ServerIdentifier, SteamID},
+	gokz_rs::ServerIdentifier,
 	schnose_api::{
 		error::Error,
-		models::{Server, ServerOwner, ServerQuery},
+		models::{Server, ServerQuery},
 	},
 	sqlx::QueryBuilder,
 	tracing::{debug, trace},
@@ -55,16 +55,5 @@ pub async fn get(
 
 	debug!("Server:\n\t{server:?}");
 
-	Ok(Server {
-		id: server.id,
-		name: server.name,
-		owned_by: server
-			.owned_by
-			.0
-			.and_then(|owner| ServerOwner::try_from(owner).ok()),
-		approved_by: server
-			.approved_by
-			.and_then(|id| (id != 0).then_some(SteamID::from_id32(id))),
-	}
-	.into())
+	Ok(Server::from(server).into())
 }

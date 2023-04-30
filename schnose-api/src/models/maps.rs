@@ -1,4 +1,5 @@
 use {
+	crate::error::{Error, Result},
 	gokz_rs::{SteamID, Tier},
 	schnosedb::{deserialize_datetime, serialize_datetime},
 	serde::{Deserialize, Serialize},
@@ -26,12 +27,12 @@ pub struct CourseQuery {
 }
 
 impl TryFrom<CourseQuery> for Course {
-	type Error = ();
+	type Error = Error;
 
-	fn try_from(value: CourseQuery) -> Result<Self, Self::Error> {
+	fn try_from(value: CourseQuery) -> Result<Self> {
 		match (value.id, value.stage, value.tier) {
 			(Some(id), Some(stage), Some(tier)) => Ok(Self { id, stage, tier }),
-			_ => Err(()),
+			_ => Err(Error::NoContent),
 		}
 	}
 }
@@ -49,15 +50,15 @@ pub struct MapperQuery {
 }
 
 impl TryFrom<MapperQuery> for Mapper {
-	type Error = ();
+	type Error = Error;
 
-	fn try_from(value: MapperQuery) -> Result<Self, Self::Error> {
+	fn try_from(value: MapperQuery) -> Result<Self> {
 		match (value.name, value.steam_id) {
 			(Some(name), Some(steam_id)) if steam_id != 0 => Ok(Self {
 				name,
 				steam_id: SteamID::from_id32(steam_id),
 			}),
-			_ => Err(()),
+			_ => Err(Error::NoContent),
 		}
 	}
 }
