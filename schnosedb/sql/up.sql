@@ -29,10 +29,14 @@ CREATE TABLE IF NOT EXISTS maps (
 );
 
 CREATE TABLE IF NOT EXISTS mappers (
+	id        INT     UNSIGNED NOT NULL AUTO_INCREMENT,
+
 	-- REFERENCES maps (id)
 	map_id    SMALLINT UNSIGNED NOT NULL,
 	-- REFERENCES players (id)
-	mapper_id INT      UNSIGNED NOT NULL
+	mapper_id INT      UNSIGNED NOT NULL,
+
+	PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS courses (
@@ -46,10 +50,14 @@ CREATE TABLE IF NOT EXISTS courses (
 );
 
 CREATE TABLE IF NOT EXISTS filters (
+	id        INT     UNSIGNED NOT NULL AUTO_INCREMENT,
+
 	-- REFERENCES courses (id)
 	course_id INT     UNSIGNED NOT NULL,
 	-- REFERENCES modes (id)
-	mode_id   TINYINT UNSIGNED NOT NULL
+	mode_id   TINYINT UNSIGNED NOT NULL,
+
+	PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS servers (

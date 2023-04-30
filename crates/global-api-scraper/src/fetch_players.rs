@@ -1,5 +1,6 @@
+use crate::FETCH_DELAY;
+
 use {
-	crate::FETCH_DELAY,
 	color_eyre::{eyre::Context, Result},
 	gokz_rs::global_api,
 	schnosedb::models::PlayerRow,

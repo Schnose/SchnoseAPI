@@ -56,7 +56,7 @@ pub async fn get(
 		JOIN players AS player ON player.id = record.player_id
 		JOIN servers AS server ON server.id = record.server_id
 		JOIN players AS server_owner ON server_owner.id = server.owned_by
-		ORDER BY created_on
+		ORDER BY created_on DESC
 		LIMIT 1
 		"#,
 	)

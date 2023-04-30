@@ -5,6 +5,7 @@ members = [
 	"crates/elastic-scraper",
 	"crates/data-wrangler",
 	"crates/global-api-scraper",
+	"crates/global-api-scraper-shuttle",
 ]
 
 # Error handling

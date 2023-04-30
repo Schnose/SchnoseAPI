@@ -1,20 +1,13 @@
 use {
 	clap::{Parser, Subcommand},
 	color_eyre::{eyre::Context, Result},
+	global_api_scraper::{fetch_players, fetch_records, RecordID},
 	sqlx::mysql::MySqlPoolOptions,
-	std::{
-		path::PathBuf,
-		time::{Duration, Instant},
-	},
+	std::{path::PathBuf, time::Instant},
 	tracing::{info, trace, Level},
 };
 
-pub const FETCH_DELAY: Duration = Duration::from_millis(727);
-
 mod config;
-
-mod fetch_players;
-mod fetch_records;
 
 /// CLI Application to fetch records from the GlobalAPI.
 #[derive(Debug, Parser)]
@@ -103,6 +96,3 @@ async fn main() -> Result<()> {
 
 	Ok(())
 }
-
-#[derive(sqlx::FromRow)]
-struct RecordID(u32);
