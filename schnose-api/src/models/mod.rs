@@ -5,4 +5,4 @@ mod players;
 pub use players::Player;
 
 mod maps;
-pub use maps::{Course, Map, Mapper};
+pub use maps::{Course, Map, MapQuery, Mapper, MapperQuery};

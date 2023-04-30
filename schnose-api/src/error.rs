@@ -16,6 +16,9 @@ pub enum Error {
 
 	#[error("No content")]
 	NoContent,
+
+	#[error("Found map without courses. Please report this.")]
+	MapWithoutCourses,
 }
 
 impl IntoResponse for Error {
@@ -24,6 +27,9 @@ impl IntoResponse for Error {
 			Error::Custom(msg) => (StatusCode::INTERNAL_SERVER_ERROR, Json(msg.to_owned())),
 			err @ Error::Database => (StatusCode::INTERNAL_SERVER_ERROR, Json(err.to_string())),
 			err @ Error::NoContent => (StatusCode::NO_CONTENT, Json(err.to_string())),
+			err @ Error::MapWithoutCourses => {
+				(StatusCode::INTERNAL_SERVER_ERROR, Json(err.to_string()))
+			}
 		}
 		.into_response()
 	}

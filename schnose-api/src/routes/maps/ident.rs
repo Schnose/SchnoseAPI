@@ -2,11 +2,12 @@ use {
 	crate::{response::Response, state::APIState},
 	axum::extract::{Path, State},
 	gokz_rs::{MapIdentifier, SteamID},
+	itertools::Itertools,
 	schnose_api::{
-		error::{yeet, Error},
-		models::{Course, Map, Mapper},
+		error::Error,
+		models::{Map, MapQuery, Mapper},
 	},
-	schnosedb::models::{CourseRow, JoinedMapperRow, MapRow},
+	sqlx::QueryBuilder,
 	tracing::{debug, trace},
 };
 
@@ -14,79 +15,78 @@ use {
 pub async fn get(Path(map): Path<MapIdentifier>, State(state): State<APIState>) -> Response<Map> {
 	trace!("GET /api/maps/{map:?}");
 
-	let query = match map {
+	let mut query = QueryBuilder::new(
+		r#"
+		SELECT
+		  map.*,
+		  JSON_ARRAYAGG(
+		    JSON_OBJECT(
+		      "id",    course.id,
+		      "stage", course.stage,
+		      "tier",  course.tier
+		    )
+		  ) as courses,
+		  JSON_ARRAYAGG(
+		    JSON_OBJECT(
+		      "name",     player.name,
+		      "steam_id", mapper.mapper_id
+		    )
+		  ) as mappers
+		FROM maps AS map
+		JOIN courses AS course ON course.map_id = map.id
+		JOIN mappers AS mapper ON mapper.map_id = map.id
+		JOIN players AS player ON player.id = mapper.mapper_id
+		"#,
+	);
+
+	match map {
 		MapIdentifier::ID(map_id) => {
-			sqlx::query_as("SELECT * FROM maps WHERE id = ? LIMIT 1").bind(map_id)
+			query
+				.push(" WHERE map.id = ")
+				.push_bind(map_id);
 		}
 		MapIdentifier::Name(map_name) => {
-			sqlx::query_as("SELECT * FROM maps WHERE name LIKE ? LIMIT 1")
-				.bind(format!("%{map_name}%"))
+			query
+				.push(" WHERE map.name LIKE ")
+				.push_bind(format!("%{map_name}%"));
 		}
 	};
 
-	let map: MapRow = query
+	query
+		.push(" GROUP BY map.id ")
+		.push(" LIMIT 1 ");
+
+	let map: MapQuery = query
+		.build_query_as()
 		.fetch_optional(state.db())
 		.await?
 		.ok_or(Error::NoContent)?;
 
 	debug!("Map:\n\t{map:?}");
 
-	let courses: Vec<CourseRow> = sqlx::query_as("SELECT * FROM courses WHERE map_id = ?")
-		.bind(map.id)
-		.fetch_all(state.db())
-		.await?;
-
-	debug!("Courses:\n\t{courses:?}");
-
-	if courses.is_empty() {
-		yeet!(Error::NoContent);
-	}
-
-	let courses = courses
+	// TODO: Do this in the database instead of here. It's fine in this case since there aren't that
+	// many maps anyway, but I would still like to do this properly.
+	let courses = map
+		.courses
+		.0
 		.into_iter()
-		.filter_map(|row| {
-			Some(Course {
-				id: row.id,
-				stage: row.stage,
-				tier: row.tier.try_into().ok()?,
-			})
-		})
+		.sorted_by(|a, b| a.id.cmp(&b.id))
+		.dedup_by(|a, b| a.id == b.id)
 		.collect();
 
-	let mappers: Vec<JoinedMapperRow> = sqlx::query_as(
-		r#"
-		SELECT
-		  m.map_id,
-		  m.mapper_id,
-		  p.name AS mapper_name
-		FROM mappers AS m
-		JOIN players AS p ON p.id = m.mapper_id
-		WHERE m.map_id = ?
-		"#,
-	)
-	.bind(map.id)
-	.fetch_all(state.db())
-	.await?;
-
-	debug!("Mappers:\n\t{mappers:?}");
-
-	if mappers.is_empty() {
-		yeet!(Error::NoContent);
-	}
-
-	let mappers = mappers
+	let mappers = map
+		.mappers
+		.0
 		.into_iter()
-		.filter_map(|row| {
-			if row.mapper_id == 0 {
-				return None;
-			}
-
-			Some(Mapper {
-				name: row.mapper_name,
-				steam_id: SteamID::from_id32(row.mapper_id),
+		.sorted_by(|a, b| a.steam_id.cmp(&b.steam_id))
+		.dedup_by(|a, b| a.steam_id == b.steam_id)
+		.filter_map(|mapper| {
+			(mapper.steam_id != 0).then_some(Mapper {
+				name: mapper.name,
+				steam_id: SteamID::from_id32(mapper.steam_id),
 			})
 		})
-		.collect();
+		.collect_vec();
 
 	Ok(Map {
 		id: map.id,
@@ -95,7 +95,9 @@ pub async fn get(Path(map): Path<MapIdentifier>, State(state): State<APIState>) 
 		filesize: map.filesize,
 		courses,
 		mappers,
-		approved_by: (map.approved_by == 0).then_some(SteamID::from_id32(map.approved_by)),
+		approved_by: map
+			.approved_by
+			.and_then(|id| (id == 0).then_some(SteamID::from_id32(id))),
 		created_on: map.created_on,
 		updated_on: map.updated_on,
 	}
