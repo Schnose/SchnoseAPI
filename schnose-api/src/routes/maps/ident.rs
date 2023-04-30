@@ -75,6 +75,8 @@ pub async fn get(Path(map): Path<MapIdentifier>, State(state): State<APIState>) 
 		.dedup_by(|a, b| a.id == b.id)
 		.collect();
 
+	// TODO: Do this in the database instead of here. It's fine in this case since there aren't that
+	// many maps anyway, but I would still like to do this properly.
 	let mappers = map
 		.mappers
 		.0

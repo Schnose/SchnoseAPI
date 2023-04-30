@@ -90,6 +90,8 @@ pub async fn get(
 	let maps = maps
 		.into_iter()
 		.map(|map| {
+			// TODO: Do this in the database instead of here. It's fine in this case since there aren't that
+			// many maps anyway, but I would still like to do this properly.
 			let mappers = map
 				.mappers
 				.0
@@ -99,6 +101,8 @@ pub async fn get(
 				.dedup_by(|a, b| a.steam_id == b.steam_id)
 				.collect();
 
+			// TODO: Do this in the database instead of here. It's fine in this case since there aren't that
+			// many maps anyway, but I would still like to do this properly.
 			let courses = map
 				.courses
 				.0
