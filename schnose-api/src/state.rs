@@ -1,8 +1,46 @@
 use {
-	color_eyre::{eyre::Context, Result},
+	crate::routes,
+	axum::{routing::get, Router, Server, ServiceExt},
+	shuttle_runtime::async_trait,
 	sqlx::{mysql::MySqlPoolOptions, MySql, Pool},
-	std::sync::Arc,
+	std::{net::SocketAddr, sync::Arc},
+	tower::Layer,
+	tower_http::normalize_path::NormalizePathLayer,
+	tracing::info,
 };
+
+pub type ShuttleResult = Result<APIState, shuttle_service::Error>;
+
+#[async_trait]
+impl shuttle_service::Service for APIState {
+	async fn bind(self, addr: SocketAddr) -> Result<(), shuttle_service::Error> {
+		let server = Server::bind(&addr);
+
+		info!("Listening on {addr}.");
+
+		let router = Router::new()
+			.route("/", get(|| async { "(͡ ͡° ͜ つ ͡͡°)" }))
+			.route("/api/modes", get(routes::modes::root::get))
+			.route("/api/modes/:ident", get(routes::modes::ident::get))
+			.route("/api/players", get(routes::players::root::get))
+			.route("/api/players/:ident", get(routes::players::ident::get))
+			.route("/api/maps", get(routes::maps::root::get))
+			.route("/api/maps/:ident", get(routes::maps::ident::get))
+			.route("/api/servers", get(routes::servers::root::get))
+			.route("/api/servers/:ident", get(routes::servers::ident::get))
+			.route("/api/records", get(routes::records::root::get))
+			.with_state(self);
+
+		let router = NormalizePathLayer::trim_trailing_slash().layer(router);
+
+		server
+			.serve(router.into_make_service())
+			.await
+			.expect("Failed to run server.");
+
+		Ok(())
+	}
+}
 
 #[derive(Debug, Clone)]
 pub struct APIState {
@@ -11,15 +49,15 @@ pub struct APIState {
 
 impl APIState {
 	#[tracing::instrument(skip(connection_string))]
-	pub async fn new(connection_string: &str) -> Result<Self> {
+	pub async fn new(connection_string: &str) -> Self {
 		let database_connection = MySqlPoolOptions::new()
 			.connect(connection_string)
 			.await
-			.context("Failed to establish database connection.")?;
+			.expect("Failed to establish database connection.");
 
-		Ok(Self {
+		Self {
 			database_connection: Arc::new(database_connection),
-		})
+		}
 	}
 
 	pub fn db(&self) -> &Pool<MySql> {
