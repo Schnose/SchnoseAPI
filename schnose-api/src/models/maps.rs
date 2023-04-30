@@ -19,6 +19,24 @@ pub struct Course {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CourseQuery {
+	pub id: Option<u32>,
+	pub stage: Option<u8>,
+	pub tier: Option<Tier>,
+}
+
+impl TryFrom<CourseQuery> for Course {
+	type Error = ();
+
+	fn try_from(value: CourseQuery) -> Result<Self, Self::Error> {
+		match (value.id, value.stage, value.tier) {
+			(Some(id), Some(stage), Some(tier)) => Ok(Self { id, stage, tier }),
+			_ => Err(()),
+		}
+	}
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Mapper {
 	pub name: String,
 	pub steam_id: SteamID,
@@ -26,8 +44,22 @@ pub struct Mapper {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MapperQuery {
-	pub name: String,
-	pub steam_id: u32,
+	pub name: Option<String>,
+	pub steam_id: Option<u32>,
+}
+
+impl TryFrom<MapperQuery> for Mapper {
+	type Error = ();
+
+	fn try_from(value: MapperQuery) -> Result<Self, Self::Error> {
+		match (value.name, value.steam_id) {
+			(Some(name), Some(steam_id)) if steam_id != 0 => Ok(Self {
+				name,
+				steam_id: SteamID::from_id32(steam_id),
+			}),
+			_ => Err(()),
+		}
+	}
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -53,7 +85,7 @@ pub struct MapQuery {
 	pub name: String,
 	pub global: bool,
 	pub filesize: u32,
-	pub courses: Json<Vec<Course>>,
+	pub courses: Json<Vec<CourseQuery>>,
 	pub mappers: Json<Vec<MapperQuery>>,
 	pub approved_by: Option<u32>,
 

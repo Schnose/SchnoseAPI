@@ -5,7 +5,7 @@ use {
 	itertools::Itertools,
 	schnose_api::{
 		error::Error,
-		models::{Map, MapQuery, Mapper},
+		models::{Course, Map, MapQuery, Mapper},
 	},
 	sqlx::QueryBuilder,
 	tracing::{debug, trace},
@@ -70,6 +70,7 @@ pub async fn get(Path(map): Path<MapIdentifier>, State(state): State<APIState>) 
 		.courses
 		.0
 		.into_iter()
+		.flat_map(Course::try_from)
 		.sorted_by(|a, b| a.id.cmp(&b.id))
 		.dedup_by(|a, b| a.id == b.id)
 		.collect();
@@ -78,14 +79,9 @@ pub async fn get(Path(map): Path<MapIdentifier>, State(state): State<APIState>) 
 		.mappers
 		.0
 		.into_iter()
+		.flat_map(Mapper::try_from)
 		.sorted_by(|a, b| a.steam_id.cmp(&b.steam_id))
 		.dedup_by(|a, b| a.steam_id == b.steam_id)
-		.filter_map(|mapper| {
-			(mapper.steam_id != 0).then_some(Mapper {
-				name: mapper.name,
-				steam_id: SteamID::from_id32(mapper.steam_id),
-			})
-		})
 		.collect_vec();
 
 	Ok(Map {

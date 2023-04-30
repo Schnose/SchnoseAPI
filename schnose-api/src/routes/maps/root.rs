@@ -5,7 +5,7 @@ use {
 	itertools::Itertools,
 	schnose_api::{
 		error::{yeet, Error},
-		models::{Map, MapQuery, Mapper},
+		models::{Course, Map, MapQuery, Mapper},
 	},
 	serde::Deserialize,
 	sqlx::QueryBuilder,
@@ -45,9 +45,9 @@ pub async fn get(
 		    )
 		  ) as mappers
 		FROM maps AS map
-		JOIN courses AS course ON course.map_id = map.id
-		JOIN mappers AS mapper ON mapper.map_id = map.id
-		JOIN players AS player ON player.id = mapper.mapper_id
+		LEFT JOIN courses AS course ON course.map_id = map.id
+		LEFT JOIN mappers AS mapper ON mapper.map_id = map.id
+		LEFT JOIN players AS player ON player.id = mapper.mapper_id
 		"#,
 	);
 
@@ -65,7 +65,6 @@ pub async fn get(
 			.push(filter)
 			.push(" map.global = ")
 			.push_bind(global as u8);
-		filter = " AND ";
 	}
 
 	query
@@ -95,27 +94,26 @@ pub async fn get(
 				.mappers
 				.0
 				.into_iter()
+				.flat_map(Mapper::try_from)
 				.sorted_by(|a, b| a.steam_id.cmp(&b.steam_id))
 				.dedup_by(|a, b| a.steam_id == b.steam_id)
-				.filter_map(|mapper| {
-					(mapper.steam_id != 0).then_some(Mapper {
-						name: mapper.name,
-						steam_id: SteamID::from_id32(mapper.steam_id),
-					})
-				})
 				.collect();
+
+			let courses = map
+				.courses
+				.0
+				.into_iter()
+				.flat_map(Course::try_from)
+				.sorted_by(|a, b| a.id.cmp(&b.id))
+				.dedup_by(|a, b| a.id == b.id)
+				.collect();
+
 			Map {
 				id: map.id,
 				name: map.name,
 				global: map.global,
 				filesize: map.filesize,
-				courses: map
-					.courses
-					.0
-					.into_iter()
-					.sorted_by(|a, b| a.id.cmp(&b.id))
-					.dedup_by(|a, b| a.id == b.id)
-					.collect(),
+				courses,
 				mappers,
 				approved_by: map
 					.approved_by
