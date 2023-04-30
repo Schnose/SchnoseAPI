@@ -1,5 +1,16 @@
 async function main() {
-	const api_maps = await fetch("https://kztimerglobal.com/api/v2/maps?limit=9999").then((res) => res.json());
+	const api_maps = [];
+
+	const api_maps_global = await fetch("https://kztimerglobal.com/api/v2/maps?validated=true&limit=9999").then((res) => res.json());
+	for (const map of api_maps_global) {
+		api_maps.push(map);
+	}
+
+	const api_maps_nonglobal = await fetch("https://kztimerglobal.com/api/v2/maps?validated=false&limit=9999").then((res) => res.json());
+	for (const map of api_maps_global) {
+		api_maps.push(map);
+	}
+
 	const kzgo_maps = await fetch("https://kzgo.eu/api/maps").then((res) => res.json());
 
 	/** `maps` SQL Schema
