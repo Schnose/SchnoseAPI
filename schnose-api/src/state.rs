@@ -6,7 +6,7 @@ use {
 	std::{net::SocketAddr, sync::Arc},
 	tower::Layer,
 	tower_http::normalize_path::NormalizePathLayer,
-	tracing::info,
+	tracing::{error, info},
 };
 
 pub type ShuttleResult = Result<APIState, shuttle_service::Error>;
@@ -19,7 +19,7 @@ impl shuttle_service::Service for APIState {
 		info!("Listening on {addr}.");
 
 		let router = Router::new()
-			.route("/", get(|| async { "(͡ ͡° ͜ つ ͡͡°)" }))
+			.route("/health", get(|| async { "(͡ ͡° ͜ つ ͡͡°)" }))
 			.route("/api/modes", get(routes::modes::root::get))
 			.route("/api/modes/:ident", get(routes::modes::ident::get))
 			.route("/api/players", get(routes::players::root::get))
@@ -33,10 +33,11 @@ impl shuttle_service::Service for APIState {
 
 		let router = NormalizePathLayer::trim_trailing_slash().layer(router);
 
-		server
-			.serve(router.into_make_service())
-			.await
-			.expect("Failed to run server.");
+		tokio::select! {
+			res = server.serve(router.into_make_service()) => {
+				error!("{res:?}");
+			}
+		};
 
 		Ok(())
 	}
