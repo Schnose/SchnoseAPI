@@ -21,7 +21,7 @@
 
 				buildInputs = with pkgs; [
 					# Rust (nix repos)
-					cargo-watch sqlx-cli
+					cargo-watch sqlx-cli cargo-chef
 
 					# Tooling
 					just

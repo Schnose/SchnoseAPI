@@ -13,5 +13,15 @@ services:
     volumes:
       - ./schnose-postgres:/var/lib/postgresql/data
 
+  schnose-api:
+    restart: no
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - schnose-postgres
+    ports:
+      - "9002:9002"
+
 volumes:
   schnose-postgres:

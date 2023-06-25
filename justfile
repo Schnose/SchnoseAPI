@@ -43,6 +43,10 @@ revert:
 up:
 	docker-compose up -d
 
+# Destroy the docker containers
+down:
+	docker-compose down
+
 # Run the PostgreSQL container
 db-start:
 	docker-compose run schnose-postgres
