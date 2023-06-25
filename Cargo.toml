@@ -1,0 +1,28 @@
+[workspace]
+resolver = "2"
+members = [
+	"crates/just-trace",
+	"crates/zer0k-elastic-scraper",
+	"crates/zer0k-elastic-wrangler"
+]
+
+[workspace.dependencies]
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter", "time"] }
+
+color-eyre = "0.6.2"
+thiserror = "1.0.40"
+
+tokio = { version = "1.28.2", features = ["full"] }
+sqlx = { version = "0.6.3", features = ["runtime-tokio-rustls", "postgres", "offline"] }
+
+serde = { version = "1.0.164", features = ["derive"] }
+serde_json = "1.0.97"
+toml = "0.7.5"
+chrono = { version = "0.4.26", features = ["serde"] }
+time = { version = "0.3.22", features = ["macros"] }
+
+dotenvy = "0.15.7"
+clap = { version = "4.3.8", features = ["derive"] }
+
+gokz_rs = { version = "0.21", features = ["global-api", "kzgo-api", "chrono"] }

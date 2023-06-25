@@ -1,0 +1,8 @@
+[package]
+name = "just-trace"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tracing-subscriber = { workspace = true }
+time = { workspace = true }
