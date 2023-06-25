@@ -1,0 +1,9 @@
+DROP TABLE Records;
+DROP TABLE Servers;
+DROP TABLE Filters;
+DROP TABLE Courses;
+DROP TABLE Mappers;
+DROP TABLE Maps;
+DROP TABLE Modes;
+DROP TABLE Players;
+

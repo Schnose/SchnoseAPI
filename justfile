@@ -25,9 +25,38 @@ doc:
 # Fetch records from zer0k's elastic instance
 scrape-elastic:
 	cargo run \
-		--bin zer0k-elastic-scraper \
 		--release \
+		--bin zer0k-elastic-scraper \
 		-- \
 			-c crates/zer0k-elastic-scraper/config.toml \
 			-o ./data/elastic-scraper
+
+# Run SQL migrations
+migrate:
+	cargo sqlx migrate run
+
+# Revert SQL migrations
+revert:
+	cargo sqlx migrate revert
+
+# Spin up the docker containers
+up:
+	docker-compose up -d
+
+# Run the PostgreSQL container
+db-start:
+	docker-compose run schnose-postgres
+
+# Stop the PostgreSQL container
+db-stop:
+	docker-compose stop schnose-postgres
+
+# Connect to the PostgreSQL container
+db-connect:
+	PGPASSWORD=postgres psql -U postgres -h 127.0.0.1 -p 9001 -d schnose-api-dev
+
+# Delete the docker volumes
+clean-volumes:
+	docker volume rm schnose-postgres
+	docker volume rm schnose-docker-target
 

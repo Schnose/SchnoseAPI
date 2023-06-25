@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  schnose-postgres:
+    image: postgres:14.1-alpine
+    restart: no
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=schnose-api-dev
+    ports:
+      - "9001:5432"
+    volumes:
+      - ./schnose-postgres:/var/lib/postgresql/data
+
+volumes:
+  schnose-postgres:

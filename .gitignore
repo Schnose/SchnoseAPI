@@ -3,3 +3,4 @@
 data/
 .direnv
 .env
+schnose-postgres/
