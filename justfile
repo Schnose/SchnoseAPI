@@ -22,3 +22,12 @@ test:
 doc:
 	cargo doc --all-features --document-private-items
 
+# Fetch records from zer0k's elastic instance
+scrape-elastic:
+	cargo run \
+		--bin zer0k-elastic-scraper \
+		--release \
+		-- \
+			-c crates/zer0k-elastic-scraper/config.toml \
+			-o ./data/elastic-scraper
+

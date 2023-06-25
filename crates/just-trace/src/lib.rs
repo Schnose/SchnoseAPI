@@ -21,7 +21,10 @@ macro_rules! layer {
 	};
 
 	($verbose:expr) => {{
-		use ::tracing_subscriber::{layer::SubscriberExt as _, Layer as _};
+		use ::tracing_subscriber::{
+			fmt::format::FmtSpan, layer::SubscriberExt as _, util::SubscriberInitExt as _,
+			Layer as _,
+		};
 
 		::tracing_subscriber::fmt::layer()
 			.pretty()
@@ -29,6 +32,7 @@ macro_rules! layer {
 			.with_ansi(true)
 			.with_file($verbose)
 			.with_line_number($verbose)
+			.with_span_events(FmtSpan::ACTIVE)
 			.with_filter(
 				::tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or("INFO".into()),
 			)
@@ -47,7 +51,9 @@ macro_rules! registry {
 		$crate::registry!(true)
 	};
 
-	($verbose:expr) => {
+	($verbose:expr) => {{
+		use ::tracing_subscriber::layer::SubscriberExt;
+
 		::tracing_subscriber::registry().with($crate::layer!($verbose))
-	};
+	}};
 }
