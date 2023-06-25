@@ -1,0 +1,2 @@
+database_url = "postgres://postgres:postgres@127.0.0.1:9001/schnose-api-dev"
+ip_address = "127.0.0.1:9002"

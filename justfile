@@ -60,3 +60,21 @@ clean-volumes:
 	docker volume rm schnose-postgres
 	docker volume rm schnose-docker-target
 
+# Run the API in dev mode
+dev:
+	RUST_LOG=ERROR,schnose_api=DEBUG cargo run \
+		--bin schnose-api \
+		-- \
+			--config ./api/config.toml \
+			--port 9002
+
+# Run the API in release mode
+prod:
+	RUST_LOG=ERROR,schnose_api=TRACE cargo run \
+		--relase \
+		--bin schnose-api \
+		-- \
+			--config ./api/config.toml \
+			--port 9002 \
+			--public
+

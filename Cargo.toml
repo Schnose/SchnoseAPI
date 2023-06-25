@@ -3,8 +3,10 @@ resolver = "2"
 members = [
 	"crates/just-trace",
 	"crates/zer0k-elastic-scraper",
-	"crates/zer0k-elastic-wrangler"
+	"crates/zer0k-elastic-wrangler",
+	"api",
 ]
+default-members = ["api"]
 
 [workspace.dependencies]
 tracing = "0.1.37"
