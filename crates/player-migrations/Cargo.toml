@@ -1,5 +1,5 @@
 [package]
-name = "data-wrangler"
+name = "player-migrations"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,14 +9,11 @@ tracing-subscriber = { workspace = true }
 just-trace = { path = "../just-trace" }
 color-eyre = { workspace = true }
 tokio = { workspace = true }
-sqlx = { workspace = true }
+sqlx = { workspace = true, features = ["mysql", "postgres"] }
 serde = { workspace = true }
-serde_json = { workspace = true }
 toml = { workspace = true }
-chrono = { workspace = true }
 time = { workspace = true }
 clap = { workspace = true }
 gokz_rs = { workspace = true }
 
-zer0k-elastic-scraper = { path = "../zer0k-elastic-scraper" }
 schnose-api = { path = "../../schnose-api" }

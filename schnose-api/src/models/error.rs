@@ -45,8 +45,6 @@ impl From<gokz_rs::error::Error> for Error {
 			| gokz_rs::prelude::Error::Reqwest(error) => Self::Hidden(error),
 
 			gokz_rs::prelude::Error::Http {
-				// code,
-				// message,
 				..
 			}
 			| gokz_rs::prelude::Error::EmptyResponse => Self::Custom(error.to_string()),
