@@ -11,7 +11,7 @@ services:
     ports:
       - "9001:5432"
     volumes:
-      - ./schnose-postgres:/var/lib/postgresql/data
+      - ./data/schnose-postgres:/var/lib/postgresql/data
 
   schnose-api:
     restart: no

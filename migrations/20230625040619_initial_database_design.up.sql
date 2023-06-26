@@ -13,9 +13,9 @@ CREATE TABLE Maps (
 	id          SMALLINT     NOT NULL PRIMARY KEY,
 	name        VARCHAR(255) NOT NULL,
 	ranked      BOOLEAN      NOT NULL DEFAULT FALSE,
-	workshop_id INT          NOT NULL,
-	filesize    BIGINT       NOT NULL,
-	approved_by INT          NOT NULL REFERENCES Players (id),
+	workshop_id INT,
+	filesize    BIGINT,
+	approved_by INT                   REFERENCES Players (id),
 	created_on  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_on  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -31,7 +31,7 @@ CREATE TABLE Courses (
 	id     INT      NOT NULL PRIMARY KEY,
 	map_id SMALLINT NOT NULL REFERENCES Maps (id),
 	stage  SMALLINT NOT NULL,
-	tier   SMALLINT NOT NULL
+	tier   SMALLINT
 );
 
 CREATE TABLE Filters (
@@ -44,8 +44,7 @@ CREATE TABLE Filters (
 CREATE TABLE Servers (
 	id          SMALLINT     NOT NULL PRIMARY KEY,
 	name        VARCHAR(255) NOT NULL,
-	owned_by    INT          NOT NULL REFERENCES Players (id),
-	approved_by INT          NOT NULL REFERENCES Players (id)
+	owned_by    INT          NOT NULL REFERENCES Players (id)
 );
 
 CREATE TABLE Records (
