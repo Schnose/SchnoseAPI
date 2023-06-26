@@ -12,7 +12,7 @@ CREATE Table Modes (
 CREATE TABLE Maps (
 	id          SMALLINT     NOT NULL PRIMARY KEY,
 	name        VARCHAR(255) NOT NULL,
-	ranked      BOOLEAN      NOT NULL DEFAULT FALSE,
+	global      BOOLEAN      NOT NULL DEFAULT FALSE,
 	workshop_id INT,
 	filesize    BIGINT,
 	approved_by INT                   REFERENCES Players (id),

@@ -1,4 +1,9 @@
+pub mod database;
+
 pub mod models;
-pub use models::spec::SchnoseAPI;
+pub use models::{
+	error::{Error, Result},
+	spec::SchnoseAPI,
+};
 
 pub mod routes;

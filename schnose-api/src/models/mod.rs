@@ -1,3 +1,3 @@
 pub mod app_state;
-pub mod records;
+pub mod error;
 pub mod spec;
