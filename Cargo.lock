@@ -988,10 +988,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "global-api-scraper"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "color-eyre",
+ "gokz_rs",
+ "just-trace",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "time 0.3.22",
+ "tokio",
+ "toml 0.7.5",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "gokz_rs"
-version = "0.21.1"
+version = "0.21.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "954593421e5455e3943bde97d3c806d833e28f758c701ede2ef9b7ed2b8126bf"
+checksum = "f9950aa9ea2f759816741d4533957e4f1256c46ec8338a0108903913472719eb"
 dependencies = [
  "chrono",
  "futures",

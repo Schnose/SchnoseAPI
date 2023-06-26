@@ -4,6 +4,7 @@ members = [
 	"crates/just-trace",
 	"crates/zer0k-elastic-scraper",
 	"crates/data-wrangler",
+	"crates/global-api-scraper",
 	"schnose-api",
 ]
 
