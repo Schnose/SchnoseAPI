@@ -1,6 +1,6 @@
-use axum::{http::Method, Json};
+use axum::{http, Json};
 
-#[allow(unused_braces)] // ?
+#[allow(unused_braces)]
 #[utoipa::path(
 	get,
 	path = "/health",
@@ -9,4 +9,4 @@ use axum::{http::Method, Json};
 	),
 )]
 #[tracing::instrument(level = "TRACE")]
-pub async fn root(method: Method) -> Json<&'static str> { Json("(͡ ͡° ͜ つ ͡͡°)") }
+pub async fn root(method: http::Method) -> Json<&'static str> { Json("(͡ ͡° ͜ つ ͡͡°)") }

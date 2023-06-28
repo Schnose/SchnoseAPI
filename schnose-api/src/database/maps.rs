@@ -14,9 +14,9 @@ pub struct MapRow {
 	pub id: i16,
 	pub name: String,
 	pub global: bool,
-	pub workshop_id: Option<i32>,
+	pub workshop_id: Option<i64>,
 	pub filesize: Option<i64>,
-	pub approved_by: Option<i32>,
+	pub approved_by: Option<i64>,
 	pub created_on: DateTime<Utc>,
 	pub updated_on: DateTime<Utc>,
 }

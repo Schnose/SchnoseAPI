@@ -9,7 +9,7 @@ use {
 	schnose_api::SchnoseAPI,
 	sqlx::postgres::PgPoolOptions,
 	std::sync::Arc,
-	tracing::info,
+	tracing::{info, trace},
 	tracing_subscriber::util::SubscriberInitExt,
 };
 
@@ -22,28 +22,30 @@ async fn main() -> Result<()> {
 	let args = Args::parse();
 
 	// Logging
-	just_trace::registry!().init();
+	if args.debug {
+		just_trace::registry!(verbose).init();
+	}
 
 	let Config {
 		database_url,
 		ip_address,
-	} = Config::load(&args).await?;
+	} = Config::load(&args).await.context("Failed to load config.")?;
 
-	info!("Connecting to database...");
+	trace!("Connecting to database...");
 
 	let pool = PgPoolOptions::new()
 		.connect(&database_url)
 		.await
 		.context("Failed to connect to database.")?;
 
-	info!("Registering routes...");
+	trace!("Registering routes...");
 
 	for route in SchnoseAPI::routes() {
-		info!(?route);
+		trace!(?route);
 	}
 
-	info!("SwaggerUI: {ip_address}/docs/swagger");
-	info!("OpenAPI Spec: {ip_address}/docs/spec.json");
+	trace!("SwaggerUI: {ip_address}/docs/swagger");
+	trace!("OpenAPI Spec: {ip_address}/docs/spec.json");
 
 	let app_state = Arc::new(AppState {
 		pool,
@@ -51,6 +53,7 @@ async fn main() -> Result<()> {
 
 	let router = schnose_api::routes::router(app_state);
 
+	trace!("Binding to {ip_address}...");
 	let server = Server::bind(&ip_address).serve(router.into_make_service());
 
 	info!("Listening on {}.", server.local_addr());

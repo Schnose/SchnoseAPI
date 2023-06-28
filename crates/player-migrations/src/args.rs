@@ -11,7 +11,7 @@ pub struct Args {
 
 	/// The amount of players to transfer at a time
 	#[arg(long)]
-	#[clap(default_value_t = 1000)]
+	#[clap(default_value_t = 2000)]
 	pub limit: usize,
 
 	/// The start offset

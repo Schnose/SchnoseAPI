@@ -8,7 +8,7 @@ use {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
 pub struct MapperRow {
-	pub player_id: i32,
+	pub player_id: i64,
 	pub map_id: i16,
 }
 

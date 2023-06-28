@@ -38,4 +38,7 @@ pub enum Data {
 		#[arg(long = "start")]
 		start_id: u32,
 	},
+
+	Mappers,
+	Filters,
 }

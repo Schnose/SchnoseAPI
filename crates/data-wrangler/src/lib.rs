@@ -2,11 +2,12 @@ use {
 	color_eyre::{eyre::Context, Result},
 	gokz_rs::{global_api, kzgo_api, types::Tier},
 	sqlx::{PgPool, QueryBuilder},
-	tracing::trace,
+	std::{collections::HashSet, time::Duration},
+	tracing::{trace, warn},
 	zer0k_elastic_scraper::elastic,
 };
 
-#[tracing::instrument(level = "INFO", skip(pool), err(Debug))]
+#[tracing::instrument(level = "INFO", skip(players, pool))]
 pub async fn insert_players(players: Vec<global_api::Player>, pool: &PgPool) -> Result<usize> {
 	let mut query = QueryBuilder::new(
 		r#"
@@ -32,7 +33,7 @@ pub async fn insert_players(players: Vec<global_api::Player>, pool: &PgPool) -> 
 			 }| {
 				query
 					.push_bind(name)
-					.push_bind(steam_id.community_id() as i32)
+					.push_bind(steam_id.community_id() as i64)
 					.push_bind(is_banned);
 			},
 		);
@@ -49,7 +50,7 @@ pub async fn insert_players(players: Vec<global_api::Player>, pool: &PgPool) -> 
 	Ok(processed)
 }
 
-#[tracing::instrument(level = "INFO", skip(pool), err(Debug))]
+#[tracing::instrument(level = "INFO", skip(maps, pool))]
 pub async fn insert_maps(
 	maps: Vec<(global_api::Map, kzgo_api::Map)>,
 	pool: &PgPool,
@@ -92,10 +93,10 @@ pub async fn insert_maps(
 			query.push_bind(id as i16).push_bind(name).push_bind(validated);
 
 			let filesize = (filesize > 0).then_some(filesize as i64);
-			let approved_by = approved_by.map(|approved_by| approved_by.community_id() as i32);
+			let approved_by = approved_by.map(|approved_by| approved_by.community_id() as i64);
 
 			query
-				.push_bind(workshop_id as i32)
+				.push_bind(workshop_id.parse::<i64>().ok())
 				.push_bind(filesize)
 				.push_bind(approved_by)
 				.push_bind(created_on)
@@ -114,7 +115,7 @@ pub async fn insert_maps(
 	Ok(processed)
 }
 
-#[tracing::instrument(level = "INFO", skip(pool), err(Debug))]
+#[tracing::instrument(level = "INFO", skip(courses, pool))]
 pub async fn insert_courses(courses: Vec<(u16, u8, Tier)>, pool: &PgPool) -> Result<usize> {
 	let mut query = QueryBuilder::new(
 		r#"
@@ -146,7 +147,7 @@ pub async fn insert_courses(courses: Vec<(u16, u8, Tier)>, pool: &PgPool) -> Res
 	Ok(processed)
 }
 
-#[tracing::instrument(level = "INFO", skip(pool), err(Debug))]
+#[tracing::instrument(level = "INFO", skip(servers, pool))]
 pub async fn insert_servers(servers: Vec<global_api::Server>, pool: &PgPool) -> Result<usize> {
 	let mut query = QueryBuilder::new(
 		r#"
@@ -170,7 +171,7 @@ pub async fn insert_servers(servers: Vec<global_api::Server>, pool: &PgPool) -> 
 		     owner_id,
 		     ..
 		 }| {
-			query.push_bind(id as i16).push_bind(name).push_bind(owner_id.community_id() as i32);
+			query.push_bind(id as i16).push_bind(name).push_bind(owner_id.community_id() as i64);
 		},
 	);
 
@@ -183,7 +184,7 @@ pub async fn insert_servers(servers: Vec<global_api::Server>, pool: &PgPool) -> 
 	Ok(processed)
 }
 
-#[tracing::instrument(level = "INFO", skip(pool), err(Debug))]
+#[tracing::instrument(level = "INFO", skip(records, pool))]
 pub async fn insert_records(records: Vec<global_api::Record>, pool: &PgPool) -> Result<usize> {
 	let mut query = QueryBuilder::new(
 		r#"
@@ -219,7 +220,7 @@ pub async fn insert_records(records: Vec<global_api::Record>, pool: &PgPool) -> 
 				.push_bind(id as i32)
 				.push_bind(course_id)
 				.push_bind(mode as i16)
-				.push_bind(steam_id.community_id() as i32)
+				.push_bind(steam_id.community_id() as i64)
 				.push_bind(server_id as i16)
 				.push_bind(time)
 				.push_bind(teleports as i16)
@@ -236,18 +237,22 @@ pub async fn insert_records(records: Vec<global_api::Record>, pool: &PgPool) -> 
 	Ok(processed)
 }
 
-#[tracing::instrument(level = "INFO", skip(pool), err(Debug))]
-pub async fn insert_elastic_records(records: Vec<elastic::Record>, pool: &PgPool) -> Result<usize> {
+#[tracing::instrument(
+	level = "TRACE",
+	skip(records, gokz_client, pool),
+	fields(records = %records.len())
+)]
+pub async fn insert_elastic_records(
+	records: Vec<elastic::Record>,
+	gokz_client: &gokz_rs::Client,
+	pool: &PgPool,
+) -> Result<usize> {
 	let mut query = QueryBuilder::new(
 		r#"
 		INSERT INTO records
 			(id, course_id, mode_id, player_id, server_id, time, teleports, created_on)
 		"#,
 	);
-
-	let processed = records.len();
-
-	trace!(amount = %records.len(), "processing records");
 
 	let maps = sqlx::query! {
 		"SELECT * FROM maps"
@@ -263,44 +268,101 @@ pub async fn insert_elastic_records(records: Vec<elastic::Record>, pool: &PgPool
 	.await
 	.context("Failed to fetch servers")?;
 
+	let mut valid = Vec::with_capacity(records.len());
+	let mut player_cache = HashSet::new();
+	let mut course_cache = HashSet::new();
+	let mut bad_courses = HashSet::new();
+
+	for record in records {
+		if !player_cache.contains(&record.steam_id)
+			&& sqlx::query! {
+				"SELECT * FROM players WHERE id = $1",
+				record.steam_id.community_id() as i64
+			}
+			.fetch_one(pool)
+			.await
+			.is_err()
+		{
+			warn!(name = %record.player_name, steam_id = %record.steam_id, "missing player, fetching...");
+			let player = global_api::get_player(record.steam_id, gokz_client).await?;
+			sqlx::query! {
+				r#"
+				INSERT INTO players
+					(id, name, is_banned)
+				VALUES
+					($1, $2, $3)
+				"#,
+				player.steam_id.community_id() as i64,
+				player.name,
+				player.is_banned,
+			}
+			.execute(pool)
+			.await?;
+
+			tokio::time::sleep(Duration::from_millis(727)).await;
+
+			player_cache.insert(record.steam_id);
+		}
+
+		let Some(map) = maps.iter().find(|map| {
+			map.name == record.map_name
+			|| map.name.contains(&record.map_name)
+		}) else {
+			continue;
+		};
+
+		let course_id = map.id as i32 * 100 + record.stage as i32;
+
+		if !course_cache.contains(&course_id)
+			&& (bad_courses.contains(&course_id)
+				|| sqlx::query!("SELECT * FROM courses WHERE id = $1", course_id)
+					.fetch_one(pool)
+					.await
+					.is_err())
+		{
+			bad_courses.insert(course_id);
+			continue;
+		}
+
+		course_cache.insert(course_id);
+
+		let Some(server) = servers.iter().find(|server| {
+			server.name == record.server_name
+			|| server.name.contains(&record.server_name)
+		}) else {
+			continue;
+		};
+
+		valid.push((server, course_id, record));
+	}
+
+	let processed = valid.len();
+
+	trace!(amount = %valid.len(), "processing records");
+
 	let mut transaction = pool.begin().await.context("Failed to start SQL transaction.")?;
 
 	query.push_values(
-		records,
+		valid,
 		|mut query,
-		 elastic::Record {
-		     id,
-		     map_name,
-		     stage,
-		     mode,
-		     steam_id,
-		     teleports,
-		     time,
-		     server_name,
-		     created_on,
-		     ..
-		 }| {
-			let Some(map) = maps.iter().find(|map| {
-				map.name == map_name
-					|| map.name.contains(&map_name)
-			}) else {
-				return;
-			};
-
-			let course_id = map.id as i32 * 100 + stage as i32;
-
-			let Some(server) = servers.iter().find(|server| {
-				server.name == server_name
-					|| server.name.contains(&server_name)
-			}) else {
-				return;
-			};
-
+		 (
+			server,
+			course_id,
+			elastic::Record {
+				id,
+				mode,
+				steam_id,
+				teleports,
+				time,
+				created_on,
+				..
+			},
+		)| {
 			query
 				.push_bind(id as i32)
 				.push_bind(course_id)
 				.push_bind(mode as i16)
-				.push_bind(steam_id.community_id() as i32)
+				.push_bind(steam_id.community_id() as i64)
 				.push_bind(server.id)
 				.push_bind(time)
 				.push_bind(teleports as i16)
@@ -308,7 +370,6 @@ pub async fn insert_elastic_records(records: Vec<elastic::Record>, pool: &PgPool
 		},
 	);
 
-	trace!("building query");
 	query.build().execute(&mut transaction).await.context("Failed to execute query.")?;
 
 	trace!("committing query");

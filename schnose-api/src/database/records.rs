@@ -14,7 +14,7 @@ pub struct RecordRow {
 	pub id: i32,
 	pub course_id: i32,
 	pub mode_id: i16,
-	pub player_id: i32,
+	pub player_id: i64,
 	pub server_id: i16,
 	pub time: f64,
 	pub teleports: i16,

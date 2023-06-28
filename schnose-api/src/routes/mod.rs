@@ -6,6 +6,7 @@ use {
 	std::sync::Arc,
 };
 
+#[tracing::instrument(level = "TRACE", skip(app_state))]
 pub fn router(app_state: Arc<AppState>) -> Router {
 	Router::new()
 		.merge(SchnoseAPI::swagger())

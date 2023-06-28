@@ -29,7 +29,7 @@ pub struct Response {
 }
 
 /// A single KZ record from Elastic
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Record {
 	pub id: u32,
 	pub map_name: String,

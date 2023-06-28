@@ -10,7 +10,7 @@ use {
 pub struct ServerRow {
 	pub id: i16,
 	pub name: String,
-	pub owned_by: i32,
+	pub owned_by: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]

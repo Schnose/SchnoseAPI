@@ -16,4 +16,8 @@ pub struct Args {
 	/// The port to run the API on
 	#[arg(short, long)]
 	pub port: Option<u16>,
+
+	/// Print logs
+	#[arg(long)]
+	pub debug: bool,
 }

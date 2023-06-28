@@ -2,25 +2,87 @@
 help:
 	@just --list
 
-# Generate git hooks (this will override existing hooks!)
+# Generate git hooks
 hooks:
-	./hooks/create.sh
+	cd hooks && ./create.sh
 
-# Analyze the codebase with clippy™️
+# Clippy
 check:
 	cargo clippy --workspace --all-features -- -D warnings
 
-# Format the codebase with nightly rustfmt
+# Formatting
 fmt:
 	cargo +nightly fmt --all
 
-# Run tests
+# Tests
 test:
 	RUST_BACKTRACE=0 cargo test --workspace --all-features
 
 # Generate documentation
 doc:
 	cargo doc --all-features --document-private-items
+
+# Prepare SQL migrations
+prepare:
+	cd ./schnose-api && cargo sqlx prepare
+
+# Run SQL migrations
+migrate:
+	cargo sqlx migrate run
+
+# Revert SQL migrations
+revert:
+	cargo sqlx migrate revert
+
+# Start the local database container
+db-up:
+	docker compose up schnose-postgres -d
+
+# Stop the local database container
+db-down:
+	docker compose stop schnose-postgres
+
+# Restart the local database container
+db-restart:
+	@just db-down
+	@just db-up
+
+# Connect to the local database container
+db-connect:
+	PGPASSWORD=postgres psql -U postgres -h 127.0.0.1 -p 9001 -d schnose-api-dev
+
+# Start the API container
+api-up:
+	docker compose up schnose-api
+
+# Start the API container without attaching to it
+api-upd:
+	docker compose up schnose-api -d
+
+# Stop the API container
+api-down:
+	docker compose stop schnose-api
+
+# Rebuild and start the API container
+api-build:
+	docker compose up schnose-api --build
+
+# Compile and run the API in dev mode locally
+dev:
+	RUST_LOG=ERROR,schnose_api=DEBUG cargo run \
+		--bin schnose-api \
+		-- \
+			--config ./configs/api.toml \
+			--port 9002
+
+# Compile and run the API in release mode locally
+dev-release:
+	RUST_LOG=ERROR,schnose_api=DEBUG cargo run \
+		--release \
+		--bin schnose-api \
+		-- \
+			--config ./configs/api.toml \
+			--port 9002
 
 # Fetch records from zer0k's elastic instance
 scrape-elastic:
@@ -31,54 +93,21 @@ scrape-elastic:
 			-c crates/zer0k-elastic-scraper/config.toml \
 			-o ./data/elastic-scraper
 
-# Run SQL migrations
-migrate:
-	cargo sqlx migrate run
-
-# Revert SQL migrations
-revert:
-	cargo sqlx migrate revert
-
-# Spin up the docker containers
-up:
-	docker-compose up -d
-
-# Destroy the docker containers
-down:
-	docker-compose down
-
-# Run the PostgreSQL container
-db-start:
-	docker-compose run schnose-postgres
-
-# Stop the PostgreSQL container
-db-stop:
-	docker-compose stop schnose-postgres
-
-# Connect to the PostgreSQL container
-db-connect:
-	PGPASSWORD=postgres psql -U postgres -h 127.0.0.1 -p 9001 -d schnose-api-dev
-
-# Delete the docker volumes
-clean-volumes:
-	docker volume rm schnose-postgres
-	docker volume rm schnose-docker-target
-
-# Run the API in dev mode
-dev:
-	RUST_LOG=ERROR,schnose_api=DEBUG cargo run \
-		--bin schnose-api \
+# Fetch maps from the GlobalAPI
+scrape-maps:
+	cargo run \
+		--release \
+		--bin global-api-scraper \
 		-- \
-			--config ./api/config.toml \
-			--port 9002
+			-c configs/data-wrangler.toml \
+			maps
 
-# Run the API in release mode
-prod:
-	RUST_LOG=ERROR,schnose_api=TRACE cargo run \
-		--relase \
-		--bin schnose-api \
+# Fetch maps from the GlobalAPI
+scrape-servers:
+	cargo run \
+		--release \
+		--bin global-api-scraper \
 		-- \
-			--config ./api/config.toml \
-			--port 9002 \
-			--public
+			-c configs/data-wrangler.toml \
+			servers
 

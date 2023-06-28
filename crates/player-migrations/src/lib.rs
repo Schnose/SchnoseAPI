@@ -19,14 +19,22 @@ pub struct Player {
 }
 
 #[tracing::instrument(level = "INFO", skip(pool), err(Debug))]
-pub async fn select_players(offset: isize, limit: usize, pool: &MySqlPool) -> Result<Vec<Player>> {
+pub async fn select_players(
+	offset: isize,
+	limit: usize,
+	pool: &MySqlPool,
+) -> Result<Option<Vec<Player>>> {
 	let mut query = QueryBuilder::new("SELECT * FROM players LIMIT ");
 	query.push_bind(limit as u64).push(" OFFSET ").push_bind(offset as i64);
 	let players = query.build_query_as().fetch_all(pool).await?;
 
+	if players.is_empty() {
+		return Ok(None);
+	}
+
 	info!(amount = %players.len(), "Fetched players.");
 
-	Ok(players)
+	Ok(Some(players))
 }
 
 #[tracing::instrument(
@@ -45,7 +53,7 @@ pub async fn insert_players(players: Vec<Player>, pool: &PgPool) -> Result<usize
 
 	let processed = players.len();
 
-	for players in players.chunks(1000) {
+	for players in players.chunks(2000) {
 		trace!(size = %players.len(), "processing chunk of players");
 
 		let mut transaction = pool.begin().await.context("Failed to start SQL transaction.")?;
@@ -58,9 +66,12 @@ pub async fn insert_players(players: Vec<Player>, pool: &PgPool) -> Result<usize
 			     name,
 			     is_banned,
 			 }| {
-				query.push_bind(*id as i32).push_bind(name).push_bind(is_banned);
+				query.push_bind(*id as i64).push_bind(name).push_bind(is_banned);
 			},
 		);
+
+		// Ignore duplicates
+		query.push(" ON CONFLICT DO NOTHING ");
 
 		trace!("building query");
 		query.build().execute(&mut transaction).await.context("Failed to execute query.")?;

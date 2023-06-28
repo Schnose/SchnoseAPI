@@ -6,10 +6,10 @@ use {
 	clap::Parser,
 	color_eyre::{eyre::Context, Result},
 	config::Config,
-	player_migrations::{select_players, Player},
-	sqlx::{mysql::MySqlPoolOptions, postgres::PgPoolOptions, QueryBuilder},
+	player_migrations::{insert_players, select_players},
+	sqlx::{mysql::MySqlPoolOptions, postgres::PgPoolOptions},
 	std::time::Instant,
-	tracing::{info, trace},
+	tracing::info,
 	tracing_subscriber::util::SubscriberInitExt,
 };
 
@@ -22,7 +22,7 @@ async fn main() -> Result<()> {
 	let mut args = Args::parse();
 
 	// Logging
-	just_trace::registry!().init();
+	just_trace::registry!(minimal).init();
 
 	let config = Config::load(&args)?;
 
@@ -44,27 +44,8 @@ async fn main() -> Result<()> {
 
 	let mut total = 0;
 
-	while let Ok(players) = select_players(args.offset, args.limit, &old_db).await {
-		let mut query = QueryBuilder::new("INSERT INTO players (id, name, is_banned)");
-		let amount = players.len();
-		trace!(%amount, "Fetched players");
-
-		query.push_values(
-			players,
-			|mut query,
-			 Player {
-			     id,
-			     name,
-			     is_banned,
-			 }| {
-				query.push_bind(id as i32).push_bind(name).push_bind(is_banned);
-			},
-		);
-
-		query.build().execute(&new_db).await.context("Failed to insert players.")?;
-		trace!(%amount, "Inserted players");
-
-		total += amount;
+	while let Ok(Some(players)) = select_players(args.offset, args.limit, &old_db).await {
+		total += insert_players(players, &new_db).await?;
 		args.offset += args.limit as isize;
 	}
 

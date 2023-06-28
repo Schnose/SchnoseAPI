@@ -8,7 +8,7 @@ use {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
 pub struct PlayerRow {
-	pub id: i32,
+	pub id: i64,
 	pub name: String,
 	pub is_banned: bool,
 }
