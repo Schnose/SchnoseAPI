@@ -18,6 +18,7 @@ pub struct ServerRow {
 pub struct Server {
 	pub id: u16,
 	pub name: String,
+	#[schema(value_type = String)]
 	pub owned_by: SteamID,
 }
 

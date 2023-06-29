@@ -20,7 +20,7 @@ use {
 	path = "/players/{ident}",
 	responses(
 		(status = 200, body = Player),
-		(status = 204, body = ()),
+		(status = 204),
 		(status = 400, description = "An invalid player identifier was provided."),
 		(status = 500, body = Error),
 	),

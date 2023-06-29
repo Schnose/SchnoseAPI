@@ -20,6 +20,7 @@ pub struct Course {
 	pub id: u32,
 	pub map_id: u16,
 	pub stage: u8,
+	#[schema(value_type = Option<u8>)]
 	pub tier: Option<Tier>,
 }
 

@@ -15,6 +15,7 @@ pub struct MapperRow {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct Mapper {
+	#[schema(value_type = String)]
 	pub player: SteamID,
 	pub map_id: u16,
 }

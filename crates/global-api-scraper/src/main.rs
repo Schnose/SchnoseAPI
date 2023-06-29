@@ -335,7 +335,7 @@ async fn main() -> Result<()> {
 					Err(err) => match err {
 						GokzError::Http {
 							code, ..
-						} if matches!(code, 500..=502) => {
+						} if matches!(code.as_u16(), 500..=502) => {
 							warn!(id = %start_id, "No records. Sleeping...");
 							tokio::time::sleep(SLEEP_TIME).await;
 							continue;

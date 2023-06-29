@@ -26,7 +26,9 @@ pub struct RecordRow {
 pub struct Record {
 	pub id: u32,
 	pub course_id: u32,
+	#[schema(value_type = String)]
 	pub mode: Mode,
+	#[schema(value_type = String)]
 	pub player: SteamID,
 	pub server_id: u16,
 	pub time: f64,

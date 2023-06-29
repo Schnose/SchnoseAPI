@@ -15,9 +15,8 @@ CREATE TABLE Maps (
 	global      BOOLEAN      NOT NULL DEFAULT FALSE,
 	workshop_id BIGINT,
 	filesize    BIGINT,
-	approved_by BIGINT                REFERENCES Players (id),
-	created_on  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_on  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+	created_on  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_on  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Mappers (
@@ -48,13 +47,13 @@ CREATE TABLE Servers (
 );
 
 CREATE TABLE Records (
-	id         INT       NOT NULL PRIMARY KEY,
-	course_id  INT       NOT NULL REFERENCES Courses (id),
-	mode_id    SMALLINT  NOT NULL REFERENCES Modes (id),
-	player_id  BIGINT    NOT NULL REFERENCES Players (id),
-	server_id  SMALLINT  NOT NULL REFERENCES Servers (id),
-	time       FLOAT8    NOT NULL,
-	teleports  SMALLINT  NOT NULL,
-	created_on TIMESTAMP NOT NULL
+	id         INT         NOT NULL PRIMARY KEY,
+	course_id  INT         NOT NULL REFERENCES Courses (id),
+	mode_id    SMALLINT    NOT NULL REFERENCES Modes (id),
+	player_id  BIGINT      NOT NULL REFERENCES Players (id),
+	server_id  SMALLINT    NOT NULL REFERENCES Servers (id),
+	time       FLOAT8      NOT NULL,
+	teleports  SMALLINT    NOT NULL,
+	created_on TIMESTAMPTZ NOT NULL
 );
 

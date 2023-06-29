@@ -1,10 +1,13 @@
 use {
+	super::{Player, PlayerRow},
 	crate::{Error, Result},
 	color_eyre::eyre::Context,
-	gokz_rs::types::SteamID,
 	serde::{Deserialize, Serialize},
 	sqlx::{
-		types::chrono::{DateTime, Utc},
+		types::{
+			chrono::{DateTime, Utc},
+			Json as SqlJson,
+		},
 		FromRow,
 	},
 	utoipa::ToSchema,
@@ -17,24 +20,24 @@ pub struct MapRow {
 	pub global: bool,
 	pub workshop_id: Option<i64>,
 	pub filesize: Option<i64>,
-	pub approved_by: Option<i64>,
+	pub created_by: Option<SqlJson<Vec<PlayerRow>>>,
 	pub created_on: DateTime<Utc>,
 	pub updated_on: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
-pub struct Map {
+pub struct MapModel {
 	pub id: u16,
 	pub name: String,
 	pub global: bool,
 	pub workshop_id: Option<u32>,
 	pub filesize: Option<u64>,
-	pub approved_by: Option<SteamID>,
+	pub created_by: Option<Vec<Player>>,
 	pub created_on: DateTime<Utc>,
 	pub updated_on: DateTime<Utc>,
 }
 
-impl TryFrom<MapRow> for Map {
+impl TryFrom<MapRow> for MapModel {
 	type Error = Error;
 
 	#[tracing::instrument(level = "TRACE", err(Debug))]
@@ -53,12 +56,14 @@ impl TryFrom<MapRow> for Map {
 			} else {
 				None
 			},
-			approved_by: if let Some(steam_id) = row.workshop_id {
+			created_by: if let Some(created_by) = row.created_by {
 				Some(
-					u32::try_from(steam_id)
-						.context("Found negative SteamID.")?
-						.try_into()
-						.context("Found invalid SteamID.")?,
+					created_by
+						.0
+						.into_iter()
+						.map(TryInto::try_into)
+						.collect::<Result<Vec<_>>>()
+						.context("Found invalid player in database.")?,
 				)
 			} else {
 				None

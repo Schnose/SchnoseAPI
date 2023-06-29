@@ -16,6 +16,7 @@ pub struct FilterRow {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct Filter {
 	pub course_id: u32,
+	#[schema(value_type = String)]
 	pub mode: Mode,
 }
 

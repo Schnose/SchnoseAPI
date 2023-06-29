@@ -20,6 +20,9 @@ pub enum Error {
 	/// A database query yielded 0 rows.
 	#[error("No data found.")]
 	NoContent,
+
+	#[error("The date values you submitted do not make sense.")]
+	InvalidDates,
 }
 
 impl IntoResponse for Error {
@@ -29,6 +32,7 @@ impl IntoResponse for Error {
 			Self::Custom(message) => (StatusCode::INTERNAL_SERVER_ERROR, message),
 			Self::Hidden(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
 			Self::NoContent => (StatusCode::NO_CONTENT, self.to_string()),
+			Self::InvalidDates => (StatusCode::BAD_REQUEST, self.to_string()),
 		};
 
 		(code, Json(message)).into_response()
@@ -37,7 +41,7 @@ impl IntoResponse for Error {
 
 impl From<color_eyre::Report> for Error {
 	#[allow(unused_braces)]
-	#[tracing::instrument(level = "TRACE")]
+	#[tracing::instrument(level = "ERROR", fields(source = ?error.source()), ret)]
 	fn from(error: color_eyre::Report) -> Self { Self::Custom(error.to_string()) }
 }
 

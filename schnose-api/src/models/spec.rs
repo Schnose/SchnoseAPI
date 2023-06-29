@@ -1,4 +1,8 @@
-use {crate::routes, utoipa::OpenApi, utoipa_swagger_ui::SwaggerUi};
+use {
+	crate::{database, routes},
+	utoipa::OpenApi,
+	utoipa_swagger_ui::SwaggerUi,
+};
 
 #[rustfmt::skip]
 #[derive(OpenApi)]
@@ -9,13 +13,21 @@ use {crate::routes, utoipa::OpenApi, utoipa_swagger_ui::SwaggerUi};
 		routes::players::ident::ident,
 		routes::modes::root,
 		routes::modes::ident::ident,
+		routes::maps::root,
+		routes::maps::ident::ident,
 	),
 
 	components(
 		schemas(
 			crate::Error,
-			crate::database::players::Player,
-			crate::database::modes::Mode,
+			database::Course,
+			database::Filter,
+			database::Mapper,
+			database::MapModel,
+			database::Mode,
+			database::Player,
+			database::Record,
+			database::Server,
 		),
 	),
 )]

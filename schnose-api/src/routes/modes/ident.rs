@@ -8,6 +8,7 @@ use {
 		extract::{Path, State},
 		http, Json,
 	},
+	color_eyre::eyre::Context,
 	std::sync::Arc,
 };
 
@@ -33,9 +34,11 @@ pub async fn ident(
 	let mode = sqlx::query_as::<_, ModeRow>("SELECT * FROM modes WHERE id = $1")
 		.bind(mode as i16)
 		.fetch_optional(state.db())
-		.await?
-		.map(TryInto::try_into)
-		.ok_or(Error::NoContent)??;
+		.await
+		.context("Failed to fetch mode from database.")?
+		.ok_or(Error::NoContent)?
+		.try_into()
+		.context("Found invalid mode in database.")?;
 
 	Ok(Json(mode))
 }

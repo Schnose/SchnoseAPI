@@ -18,7 +18,6 @@ use {
 };
 
 #[derive(Debug, Clone, Deserialize, ToSchema, IntoParams)]
-#[into_params(parameter_in = Query)]
 pub struct Params {
 	pub name: Option<String>,
 	pub is_banned: Option<bool>,
@@ -32,7 +31,7 @@ pub struct Params {
 	path = "/players",
 	responses(
 		(status = 200, body = Vec<Player>),
-		(status = 204, body = ()),
+		(status = 204),
 		(status = 500, body = Error),
 	),
 	params(Params),
