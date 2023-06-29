@@ -16,6 +16,10 @@ pub enum Error {
 	/// An error that is not supposed to happen and which the user should not find out about.
 	#[error("An unexpected error occurred.")]
 	Hidden(String),
+
+	/// A database query yielded 0 rows.
+	#[error("No data found.")]
+	NoContent,
 }
 
 impl IntoResponse for Error {
@@ -24,6 +28,7 @@ impl IntoResponse for Error {
 		let (code, message) = match self {
 			Self::Custom(message) => (StatusCode::INTERNAL_SERVER_ERROR, message),
 			Self::Hidden(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+			Self::NoContent => (StatusCode::NO_CONTENT, self.to_string()),
 		};
 
 		(code, Json(message)).into_response()
@@ -50,6 +55,38 @@ impl From<gokz_rs::error::Error> for Error {
 			| gokz_rs::prelude::Error::EmptyResponse => Self::Custom(error.to_string()),
 
 			_ => todo!(),
+		}
+	}
+}
+
+impl From<sqlx::Error> for Error {
+	fn from(error: sqlx::Error) -> Self {
+		#[allow(clippy::match_single_binding)] // TODO: remove
+		match error {
+			// sqlx::Error::Configuration(_) => todo!(),
+			// sqlx::Error::Database(_) => todo!(),
+			// sqlx::Error::Io(_) => todo!(),
+			// sqlx::Error::Tls(_) => todo!(),
+			// sqlx::Error::Protocol(_) => todo!(),
+			// sqlx::Error::RowNotFound => todo!(),
+			// sqlx::Error::TypeNotFound {
+			// 	type_name,
+			// } => todo!(),
+			// sqlx::Error::ColumnIndexOutOfBounds {
+			// 	index,
+			// 	len,
+			// } => todo!(),
+			// sqlx::Error::ColumnNotFound(_) => todo!(),
+			// sqlx::Error::ColumnDecode {
+			// 	index,
+			// 	source,
+			// } => todo!(),
+			// sqlx::Error::Decode(_) => todo!(),
+			// sqlx::Error::PoolTimedOut => todo!(),
+			// sqlx::Error::PoolClosed => todo!(),
+			// sqlx::Error::WorkerCrashed => todo!(),
+			// sqlx::Error::Migrate(_) => todo!(),
+			_ => Self::Hidden(String::from("Database error.")),
 		}
 	}
 }

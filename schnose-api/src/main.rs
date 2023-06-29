@@ -1,16 +1,14 @@
 mod setup;
 
-pub use schnose_api::models::app_state::AppState;
 use {
 	crate::setup::{Args, Config},
 	axum::Server,
 	clap::Parser,
 	color_eyre::{eyre::Context, Result},
-	schnose_api::SchnoseAPI,
+	schnose_api::{models::app_state::AppState, SchnoseAPI},
 	sqlx::postgres::PgPoolOptions,
 	std::sync::Arc,
-	tracing::{info, trace},
-	tracing_subscriber::util::SubscriberInitExt,
+	tracing::{debug, info, trace},
 };
 
 #[tokio::main]
@@ -22,30 +20,28 @@ async fn main() -> Result<()> {
 	let args = Args::parse();
 
 	// Logging
-	if args.debug {
-		just_trace::registry!(verbose).init();
-	}
+	crate::tracing_setup!(args.debug);
 
 	let Config {
 		database_url,
 		ip_address,
 	} = Config::load(&args).await.context("Failed to load config.")?;
 
-	trace!("Connecting to database...");
+	debug!("Connecting to database...");
 
 	let pool = PgPoolOptions::new()
 		.connect(&database_url)
 		.await
 		.context("Failed to connect to database.")?;
 
-	trace!("Registering routes...");
+	info!("Registering routes...");
 
 	for route in SchnoseAPI::routes() {
 		trace!(?route);
 	}
 
-	trace!("SwaggerUI: {ip_address}/docs/swagger");
-	trace!("OpenAPI Spec: {ip_address}/docs/spec.json");
+	info!("SwaggerUI: {ip_address}/docs/swagger");
+	info!("OpenAPI Spec: {ip_address}/docs/spec.json");
 
 	let app_state = Arc::new(AppState {
 		pool,

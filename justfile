@@ -73,7 +73,8 @@ dev:
 		--bin schnose-api \
 		-- \
 			--config ./configs/api.toml \
-			--port 9002
+			--port 9002 \
+			--debug
 
 # Compile and run the API in release mode locally
 dev-release:
@@ -82,7 +83,8 @@ dev-release:
 		--bin schnose-api \
 		-- \
 			--config ./configs/api.toml \
-			--port 9002
+			--port 9002 \
+			--debug
 
 # Fetch records from zer0k's elastic instance
 scrape-elastic:

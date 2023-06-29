@@ -6,7 +6,6 @@ edition = "2021"
 [dependencies]
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-just-trace = { path = "../crates/just-trace" }
 color-eyre = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }

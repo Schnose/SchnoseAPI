@@ -5,11 +5,13 @@ use {crate::routes, utoipa::OpenApi, utoipa_swagger_ui::SwaggerUi};
 #[openapi(
 	paths(
 		routes::health::root,
+		routes::players::root,
 	),
 
 	components(
 		schemas(
-
+			crate::Error,
+			crate::database::players::Player,
 		),
 	),
 )]

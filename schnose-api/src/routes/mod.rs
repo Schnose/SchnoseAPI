@@ -1,4 +1,5 @@
 pub mod health;
+pub mod players;
 
 use {
 	crate::{models::app_state::AppState, SchnoseAPI},
@@ -11,5 +12,6 @@ pub fn router(app_state: Arc<AppState>) -> Router {
 	Router::new()
 		.merge(SchnoseAPI::swagger())
 		.route("/health", get(health::root))
+		.route("/players", get(players::root))
 		.with_state(app_state)
 }

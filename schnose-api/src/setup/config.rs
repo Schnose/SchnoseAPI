@@ -12,7 +12,7 @@ pub struct Config {
 }
 
 impl Config {
-	#[tracing::instrument(level = "TRACE")]
+	#[tracing::instrument(level = "DEBUG")]
 	pub async fn load(args: &Args) -> Result<Self> {
 		let config_file = tokio::fs::read_to_string(&args.config_path)
 			.await
