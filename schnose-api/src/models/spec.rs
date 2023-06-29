@@ -17,6 +17,7 @@ use {
 		routes::maps::ident::ident,
 		routes::servers::root,
 		routes::servers::ident::ident,
+		routes::filters::map::map,
 	),
 
 	components(

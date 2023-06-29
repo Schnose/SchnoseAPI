@@ -1,7 +1,5 @@
 use {
 	crate::{Error, Result},
-	color_eyre::eyre::Context,
-	gokz_rs::types::Mode,
 	serde::{Deserialize, Serialize},
 	sqlx::FromRow,
 	utoipa::ToSchema,
@@ -15,9 +13,12 @@ pub struct FilterRow {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct Filter {
-	pub course_id: u32,
-	#[schema(value_type = String)]
-	pub mode: Mode,
+	pub map_id: u16,
+	pub map_name: String,
+	pub stage: u8,
+	pub kzt: bool,
+	pub skz: bool,
+	pub vnl: bool,
 }
 
 impl TryFrom<FilterRow> for Filter {
@@ -25,9 +26,6 @@ impl TryFrom<FilterRow> for Filter {
 
 	#[tracing::instrument(level = "TRACE", err(Debug))]
 	fn try_from(row: FilterRow) -> Result<Self> {
-		Ok(Self {
-			course_id: row.course_id.try_into().context("Found negative CourseID.")?,
-			mode: row.mode_id.try_into().context("Found invalid ModeID.")?,
-		})
+		unimplemented!();
 	}
 }
