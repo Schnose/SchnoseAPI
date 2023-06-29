@@ -14,10 +14,10 @@ use {
 	serde::Deserialize,
 	sqlx::QueryBuilder,
 	std::sync::Arc,
-	utoipa::{IntoParams, ToSchema},
+	utoipa::IntoParams,
 };
 
-#[derive(Debug, Clone, Deserialize, ToSchema, IntoParams)]
+#[derive(Debug, Clone, Deserialize, IntoParams)]
 pub struct Params {
 	pub name: Option<String>,
 	pub is_banned: Option<bool>,

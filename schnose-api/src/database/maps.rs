@@ -1,5 +1,5 @@
 use {
-	super::{Player, PlayerRow},
+	super::{Course, CourseRow, Player, PlayerRow},
 	crate::{Error, Result},
 	color_eyre::eyre::Context,
 	serde::{Deserialize, Serialize},
@@ -18,9 +18,10 @@ pub struct MapRow {
 	pub id: i16,
 	pub name: String,
 	pub global: bool,
+	pub courses: SqlJson<Vec<CourseRow>>,
 	pub workshop_id: Option<i64>,
 	pub filesize: Option<i64>,
-	pub created_by: Option<SqlJson<Vec<PlayerRow>>>,
+	pub mappers: Option<SqlJson<Vec<PlayerRow>>>,
 	pub created_on: DateTime<Utc>,
 	pub updated_on: DateTime<Utc>,
 }
@@ -30,9 +31,10 @@ pub struct MapModel {
 	pub id: u16,
 	pub name: String,
 	pub global: bool,
+	pub courses: Vec<Course>,
 	pub workshop_id: Option<u32>,
 	pub filesize: Option<u64>,
-	pub created_by: Option<Vec<Player>>,
+	pub mappers: Option<Vec<Player>>,
 	pub created_on: DateTime<Utc>,
 	pub updated_on: DateTime<Utc>,
 }
@@ -46,6 +48,13 @@ impl TryFrom<MapRow> for MapModel {
 			id: row.id.try_into().context("Found negative MapID.")?,
 			name: row.name,
 			global: row.global,
+			courses: row
+				.courses
+				.0
+				.into_iter()
+				.map(TryInto::try_into)
+				.collect::<Result<Vec<_>>>()
+				.context("Found invalid course in database.")?,
 			workshop_id: if let Some(id) = row.workshop_id {
 				Some(id.try_into().context("Found negative WorkshopID.")?)
 			} else {
@@ -56,9 +65,9 @@ impl TryFrom<MapRow> for MapModel {
 			} else {
 				None
 			},
-			created_by: if let Some(created_by) = row.created_by {
+			mappers: if let Some(mappers) = row.mappers {
 				Some(
-					created_by
+					mappers
 						.0
 						.into_iter()
 						.map(TryInto::try_into)

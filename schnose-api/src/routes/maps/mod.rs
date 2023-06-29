@@ -16,14 +16,14 @@ use {
 	serde::Deserialize,
 	sqlx::QueryBuilder,
 	std::sync::Arc,
-	utoipa::{IntoParams, ToSchema},
+	utoipa::IntoParams,
 };
 
-#[derive(Debug, Clone, Deserialize, ToSchema, IntoParams)]
+#[derive(Debug, Clone, Deserialize, IntoParams)]
 pub struct Params {
 	pub name: Option<String>,
-	#[schema(value_type = Option<String>)]
-	pub created_by: Option<PlayerIdentifier>,
+	#[param(value_type = Option<String>)]
+	pub mapper: Option<PlayerIdentifier>,
 	pub created_after: Option<DateTime<Utc>>,
 	pub created_before: Option<DateTime<Utc>>,
 	pub offset: Option<i64>,
@@ -47,7 +47,7 @@ pub async fn root(
 	method: http::Method,
 	Query(Params {
 		name,
-		created_by,
+		mapper,
 		created_after,
 		created_before,
 		offset,
@@ -59,12 +59,15 @@ pub async fn root(
 		r#"
 		SELECT
 			map.*,
-			JSON_AGG(p_mapper.*) created_by
+			JSON_AGG(course.*) courses,
+			JSON_AGG(p_mapper.*) mappers
 			FROM maps map
-			JOIN mappers mapper
-				ON mapper.map_id = map.id
-			JOIN players p_mapper
-				ON p_mapper.id = mapper.player_id
+		JOIN courses course
+			ON course.map_id = map.id
+		JOIN mappers mapper
+			ON mapper.map_id = map.id
+		JOIN players p_mapper
+			ON p_mapper.id = mapper.player_id
 		"#,
 	);
 
@@ -100,10 +103,10 @@ pub async fn root(
 		}
 	};
 
-	if let Some(created_by) = created_by {
+	if let Some(mapper) = mapper {
 		query.push(filter);
 
-		match created_by {
+		match mapper {
 			PlayerIdentifier::SteamID(steam_id) => {
 				query.push("mapper.player_id = ").push_bind(steam_id.community_id() as i64);
 			}

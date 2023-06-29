@@ -33,14 +33,31 @@ pub async fn ident(
 	Path(map_identifier): Path<MapIdentifier>,
 	State(state): State<Arc<AppState>>,
 ) -> Result<Json<MapModel>> {
-	let mut query = QueryBuilder::new("SELECT * FROM maps WHERE");
+	let mut query = QueryBuilder::new(
+		r#"
+		SELECT
+			map.*,
+			JSON_AGG(DISTINCT course.*) courses,
+			JSON_AGG(DISTINCT p_mapper.*) mappers
+			FROM maps map
+		JOIN courses course
+			ON course.map_id = map.id
+		JOIN mappers mapper
+			ON mapper.map_id = map.id
+		JOIN players p_mapper
+			ON p_mapper.id = mapper.player_id
+		WHERE
+		"#,
+	);
 
 	match map_identifier {
-		MapIdentifier::Id(map_id) => query.push(" id = ").push_bind(map_id as i16),
+		MapIdentifier::Id(map_id) => query.push(" map.id = ").push_bind(map_id as i16),
 		MapIdentifier::Name(map_name) => {
-			query.push(" name ILIKE ").push_bind(format!("%{map_name}%"))
+			query.push(" map.name ILIKE ").push_bind(format!("%{map_name}%"))
 		}
 	};
+
+	query.push(" GROUP BY map.id ");
 
 	let map = query
 		.build_query_as::<MapRow>()
