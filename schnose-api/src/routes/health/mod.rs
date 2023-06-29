@@ -3,6 +3,7 @@ use axum::{http, Json};
 #[rustfmt::skip]
 #[utoipa::path(
 	get,
+	tag = "Health",
 	path = "/health",
 	responses(
 		(status = 200, description = "Healthcheck for the API", body = &'static str),

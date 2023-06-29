@@ -6,6 +6,7 @@ use {crate::routes, utoipa::OpenApi, utoipa_swagger_ui::SwaggerUi};
 	paths(
 		routes::health::root,
 		routes::players::root,
+		routes::players::ident::ident,
 	),
 
 	components(

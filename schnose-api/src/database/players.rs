@@ -15,6 +15,7 @@ pub struct PlayerRow {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct Player {
+	#[schema(value_type = String)]
 	pub steam_id: SteamID,
 	pub name: String,
 	pub is_banned: bool,

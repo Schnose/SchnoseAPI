@@ -1,4 +1,4 @@
-mod ident;
+pub mod ident;
 pub use ident::ident;
 use {
 	crate::{
@@ -13,10 +13,11 @@ use {
 	serde::Deserialize,
 	sqlx::QueryBuilder,
 	std::sync::Arc,
-	utoipa::ToSchema,
+	utoipa::{IntoParams, ToSchema},
 };
 
-#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Deserialize, ToSchema, IntoParams)]
+#[into_params(parameter_in = Query)]
 pub struct Params {
 	pub name: Option<String>,
 	pub is_banned: Option<bool>,
@@ -26,12 +27,14 @@ pub struct Params {
 
 #[utoipa::path(
 	get,
+	tag = "Players",
 	path = "/players",
 	responses(
 		(status = 200, body = Vec<Player>),
 		(status = 204, body = ()),
 		(status = 500, body = Error),
 	),
+	params(Params),
 )]
 #[tracing::instrument(level = "DEBUG", skip(state), err(Debug))]
 pub async fn root(

@@ -15,11 +15,15 @@ use {
 
 #[utoipa::path(
 	get,
+	tag = "Players",
 	path = "/players/{ident}",
 	responses(
 		(status = 200, body = Player),
 		(status = 204, body = ()),
 		(status = 500, body = Error),
+	),
+	params(
+		("ident" = String, Path, description = "The player's name or SteamID."),
 	),
 )]
 #[tracing::instrument(level = "DEBUG", skip(state), err(Debug))]
