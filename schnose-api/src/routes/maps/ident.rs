@@ -20,7 +20,7 @@ use {
 	path = "/maps/{ident}",
 	responses(
 		(status = 200, body = Player),
-		(status = 400, description = "An invalid map was provided."),
+		(status = 400, description = "An invalid map identifier was provided."),
 		(status = 500, body = Error),
 	),
 	params(
@@ -39,7 +39,7 @@ pub async fn ident(
 			map.*,
 			JSON_AGG(DISTINCT course.*) courses,
 			JSON_AGG(DISTINCT p_mapper.*) mappers
-			FROM maps map
+		FROM maps map
 		JOIN courses course
 			ON course.map_id = map.id
 		JOIN mappers mapper

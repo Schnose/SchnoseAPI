@@ -15,6 +15,8 @@ use {
 		routes::modes::ident::ident,
 		routes::maps::root,
 		routes::maps::ident::ident,
+		routes::servers::root,
+		routes::servers::ident::ident,
 	),
 
 	components(

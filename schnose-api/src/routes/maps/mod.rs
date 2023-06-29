@@ -61,7 +61,7 @@ pub async fn root(
 			map.*,
 			JSON_AGG(course.*) courses,
 			JSON_AGG(p_mapper.*) mappers
-			FROM maps map
+		FROM maps map
 		JOIN courses course
 			ON course.map_id = map.id
 		JOIN mappers mapper

@@ -2,6 +2,7 @@ pub mod health;
 pub mod maps;
 pub mod modes;
 pub mod players;
+pub mod servers;
 
 use {
 	crate::{models::app_state::AppState, SchnoseAPI},
@@ -20,5 +21,7 @@ pub fn router(app_state: Arc<AppState>) -> Router {
 		.route("/modes/:ident", get(modes::ident))
 		.route("/maps", get(maps::root))
 		.route("/maps/:ident", get(maps::ident))
+		.route("/servers", get(servers::root))
+		.route("/servers/:ident", get(servers::ident))
 		.with_state(app_state)
 }

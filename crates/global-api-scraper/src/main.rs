@@ -4,7 +4,7 @@ mod config;
 use {
 	crate::{args::Args, config::Config},
 	args::Data,
-	chrono::NaiveDateTime,
+	chrono::{DateTime, NaiveDateTime, Utc},
 	clap::Parser,
 	color_eyre::{
 		eyre::{bail as yeet, eyre, Context},
@@ -398,23 +398,33 @@ async fn main() -> Result<()> {
 								global,
 								workshop_id,
 								filesize,
-								approved_by,
 								created_on,
 								updated_on
 							)
 						VALUES
-							($1, $2, $3, $4, $5, $6, $7, $8)
+							($1, $2, $3, $4, $5, $6, $7)
 						"#,
 						global_api_map.id as i16,
 						global_api_map.name,
 						global_api_map.validated,
 						workshop_id,
 						global_api_map.filesize as i64,
-						approved_by,
-						NaiveDateTime::from_timestamp_opt(global_api_map.created_on.timestamp(), 0)
+						DateTime::<Utc>::from_utc(
+							NaiveDateTime::from_timestamp_opt(
+								global_api_map.created_on.timestamp(),
+								0
+							)
 							.unwrap(),
-						NaiveDateTime::from_timestamp_opt(global_api_map.updated_on.timestamp(), 0)
-							.unwrap()
+							Utc
+						),
+						DateTime::<Utc>::from_utc(
+							NaiveDateTime::from_timestamp_opt(
+								global_api_map.updated_on.timestamp(),
+								0
+							)
+							.unwrap(),
+							Utc
+						),
 					}
 					.execute(&pool)
 					.await
@@ -493,8 +503,10 @@ async fn main() -> Result<()> {
 					server_id as i16,
 					time,
 					teleports as i32,
-					NaiveDateTime::from_timestamp_opt(created_on.timestamp(), 0)
-						.unwrap()
+					DateTime::<Utc>::from_utc(
+						NaiveDateTime::from_timestamp_opt(created_on.timestamp(), 0).unwrap(),
+						Utc
+					),
 				}
 				.execute(&pool)
 				.await

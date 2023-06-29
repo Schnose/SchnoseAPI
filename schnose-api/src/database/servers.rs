@@ -1,9 +1,9 @@
 use {
+	super::{Player, PlayerRow},
 	crate::{Error, Result},
 	color_eyre::eyre::Context,
-	gokz_rs::types::SteamID,
 	serde::{Deserialize, Serialize},
-	sqlx::FromRow,
+	sqlx::{types::Json as SqlJson, FromRow},
 	utoipa::ToSchema,
 };
 
@@ -11,15 +11,14 @@ use {
 pub struct ServerRow {
 	pub id: i16,
 	pub name: String,
-	pub owned_by: i64,
+	pub owned_by: SqlJson<PlayerRow>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct Server {
 	pub id: u16,
 	pub name: String,
-	#[schema(value_type = String)]
-	pub owned_by: SteamID,
+	pub owned_by: Player,
 }
 
 impl TryFrom<ServerRow> for Server {
@@ -30,10 +29,7 @@ impl TryFrom<ServerRow> for Server {
 		Ok(Self {
 			id: row.id.try_into().context("Found negative ServerID.")?,
 			name: row.name,
-			owned_by: u32::try_from(row.owned_by)
-				.context("Found negative SteamID.")?
-				.try_into()
-				.context("Found invalid SteamID.")?,
+			owned_by: row.owned_by.0.try_into().context("Found invalid player in database.")?,
 		})
 	}
 }
