@@ -13,5 +13,6 @@ pub fn router(app_state: Arc<AppState>) -> Router {
 		.merge(SchnoseAPI::swagger())
 		.route("/health", get(health::root))
 		.route("/players", get(players::root))
+		.route("/players/:ident", get(players::ident))
 		.with_state(app_state)
 }

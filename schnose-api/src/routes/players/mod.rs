@@ -1,3 +1,5 @@
+mod ident;
+pub use ident::ident;
 use {
 	crate::{
 		database::players::{Player, PlayerRow},
@@ -47,7 +49,7 @@ pub async fn root(
 	let mut filter = " WHERE ";
 
 	if let Some(name) = name {
-		query.push(filter).push("name LIKE ").push_bind(format!("%{name}%"));
+		query.push(filter).push("name ILIKE ").push_bind(format!("%{name}%"));
 		filter = " AND ";
 	}
 

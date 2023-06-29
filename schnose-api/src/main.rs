@@ -37,7 +37,7 @@ async fn main() -> Result<()> {
 	info!("Registering routes...");
 
 	for route in SchnoseAPI::routes() {
-		trace!(?route);
+		debug!(?route);
 	}
 
 	info!("SwaggerUI: {ip_address}/docs/swagger");
