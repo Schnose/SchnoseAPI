@@ -3,6 +3,7 @@ pub mod health;
 pub mod maps;
 pub mod modes;
 pub mod players;
+pub mod records;
 pub mod servers;
 
 use {
@@ -25,5 +26,6 @@ pub fn router(app_state: Arc<AppState>) -> Router {
 		.route("/servers", get(servers::root))
 		.route("/servers/:ident", get(servers::ident))
 		.route("/filters/map/:ident", get(filters::map))
+		.route("/records/:id", get(records::id))
 		.with_state(app_state)
 }
