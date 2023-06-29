@@ -1,4 +1,5 @@
 pub mod health;
+pub mod modes;
 pub mod players;
 
 use {
@@ -14,5 +15,7 @@ pub fn router(app_state: Arc<AppState>) -> Router {
 		.route("/health", get(health::root))
 		.route("/players", get(players::root))
 		.route("/players/:ident", get(players::ident))
+		.route("/modes", get(modes::root))
+		.route("/modes/:ident", get(modes::ident))
 		.with_state(app_state)
 }

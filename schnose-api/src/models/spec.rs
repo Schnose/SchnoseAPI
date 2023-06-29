@@ -7,12 +7,15 @@ use {crate::routes, utoipa::OpenApi, utoipa_swagger_ui::SwaggerUi};
 		routes::health::root,
 		routes::players::root,
 		routes::players::ident::ident,
+		routes::modes::root,
+		routes::modes::ident::ident,
 	),
 
 	components(
 		schemas(
 			crate::Error,
 			crate::database::players::Player,
+			crate::database::modes::Mode,
 		),
 	),
 )]
