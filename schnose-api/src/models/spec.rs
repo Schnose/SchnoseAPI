@@ -7,6 +7,19 @@ use {
 #[rustfmt::skip]
 #[derive(OpenApi)]
 #[openapi(
+	info(
+		title = "SchnoseAPI",
+		version = "1",
+		contact(
+			name = "AlphaKeks",
+			email = "alphakeks@dawn.sh",
+		),
+		license(
+			name = "GPL-3.0",
+			url = "https://www.gnu.org/licenses/gpl-3.0",
+		),
+	),
+
 	paths(
 		routes::health::root,
 		routes::players::root,
