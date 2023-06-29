@@ -1,5 +1,6 @@
 use {
 	crate::{Error, Result},
+	color_eyre::eyre::Context,
 	gokz_rs::types::SteamID,
 	serde::{Deserialize, Serialize},
 	sqlx::FromRow,
@@ -27,7 +28,10 @@ impl TryFrom<PlayerRow> for Player {
 	#[tracing::instrument(level = "TRACE", err(Debug))]
 	fn try_from(row: PlayerRow) -> Result<Self> {
 		Ok(Self {
-			steam_id: u32::try_from(row.id)?.try_into()?,
+			steam_id: u32::try_from(row.id)
+				.context("Found negative SteamID.")?
+				.try_into()
+				.context("Found invalid SteamID.")?,
 			name: row.name,
 			is_banned: row.is_banned,
 		})

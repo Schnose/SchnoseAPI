@@ -1,5 +1,6 @@
 use {
 	crate::{Error, Result},
+	color_eyre::eyre::Context,
 	serde::{Deserialize, Serialize},
 	sqlx::FromRow,
 	utoipa::ToSchema,
@@ -23,7 +24,7 @@ impl TryFrom<ModeRow> for Mode {
 	#[tracing::instrument(level = "TRACE", err(Debug))]
 	fn try_from(row: ModeRow) -> Result<Self> {
 		Ok(Self {
-			id: row.id.try_into()?,
+			id: row.id.try_into().context("Failed to convert ModeID.")?,
 			name: row.name,
 		})
 	}

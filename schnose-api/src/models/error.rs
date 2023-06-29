@@ -35,6 +35,12 @@ impl IntoResponse for Error {
 	}
 }
 
+impl From<color_eyre::Report> for Error {
+	#[allow(unused_braces)]
+	#[tracing::instrument(level = "TRACE")]
+	fn from(error: color_eyre::Report) -> Self { Self::Custom(error.to_string()) }
+}
+
 impl From<std::num::TryFromIntError> for Error {
 	#[allow(unused_braces)]
 	#[tracing::instrument(level = "TRACE", ret)]

@@ -1,5 +1,6 @@
 use {
 	crate::{Error, Result},
+	color_eyre::eyre::Context,
 	gokz_rs::types::Mode,
 	serde::{Deserialize, Serialize},
 	sqlx::FromRow,
@@ -24,8 +25,8 @@ impl TryFrom<FilterRow> for Filter {
 	#[tracing::instrument(level = "TRACE", err(Debug))]
 	fn try_from(row: FilterRow) -> Result<Self> {
 		Ok(Self {
-			course_id: row.course_id.try_into()?,
-			mode: row.mode_id.try_into()?,
+			course_id: row.course_id.try_into().context("Found negative CourseID.")?,
+			mode: row.mode_id.try_into().context("Found invalid ModeID.")?,
 		})
 	}
 }

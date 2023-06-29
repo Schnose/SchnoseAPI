@@ -17,7 +17,7 @@ use {
 	path = "/modes/{ident}",
 	responses(
 		(status = 200, body = Player),
-		(status = 204, body = ()),
+		(status = 400, description = "An invalid mode was provided."),
 		(status = 500, body = Error),
 	),
 	params(

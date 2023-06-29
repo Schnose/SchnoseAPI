@@ -10,6 +10,7 @@ use {
 		extract::{Query, State},
 		http, Json,
 	},
+	color_eyre::eyre::Context,
 	serde::Deserialize,
 	sqlx::QueryBuilder,
 	std::sync::Arc,
@@ -69,10 +70,12 @@ pub async fn root(
 	let players = query
 		.build_query_as::<PlayerRow>()
 		.fetch_all(state.db())
-		.await?
+		.await
+		.context("Failed to fetch players from database.")?
 		.into_iter()
 		.map(TryInto::try_into)
-		.collect::<Result<Vec<Player>>>()?;
+		.collect::<Result<Vec<Player>>>()
+		.context("Found invalid player in database.")?;
 
 	if players.is_empty() {
 		return Err(Error::NoContent);

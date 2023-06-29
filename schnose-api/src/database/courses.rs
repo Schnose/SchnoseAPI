@@ -1,5 +1,6 @@
 use {
 	crate::{Error, Result},
+	color_eyre::eyre::Context,
 	gokz_rs::types::Tier,
 	serde::{Deserialize, Serialize},
 	sqlx::FromRow,
@@ -28,10 +29,14 @@ impl TryFrom<CourseRow> for Course {
 	#[tracing::instrument(level = "TRACE", err(Debug))]
 	fn try_from(row: CourseRow) -> Result<Self> {
 		Ok(Self {
-			id: row.id.try_into()?,
-			map_id: row.map_id.try_into()?,
-			stage: row.stage.try_into()?,
-			tier: if let Some(tier) = row.tier { Some(tier.try_into()?) } else { None },
+			id: row.id.try_into().context("Found negative CourseID.")?,
+			map_id: row.map_id.try_into().context("Found negative MapID.")?,
+			stage: row.stage.try_into().context("Found negative stage.")?,
+			tier: if let Some(tier) = row.tier {
+				Some(tier.try_into().context("Found invalid Tier.")?)
+			} else {
+				None
+			},
 		})
 	}
 }

@@ -1,5 +1,6 @@
 use {
 	crate::{Error, Result},
+	color_eyre::eyre::Context,
 	gokz_rs::types::SteamID,
 	serde::{Deserialize, Serialize},
 	sqlx::FromRow,
@@ -26,9 +27,12 @@ impl TryFrom<ServerRow> for Server {
 	#[tracing::instrument(level = "TRACE", err(Debug))]
 	fn try_from(row: ServerRow) -> Result<Self> {
 		Ok(Self {
-			id: row.id.try_into()?,
+			id: row.id.try_into().context("Found negative ServerID.")?,
 			name: row.name,
-			owned_by: u32::try_from(row.owned_by)?.try_into()?,
+			owned_by: u32::try_from(row.owned_by)
+				.context("Found negative SteamID.")?
+				.try_into()
+				.context("Found invalid SteamID.")?,
 		})
 	}
 }

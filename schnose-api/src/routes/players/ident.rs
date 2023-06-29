@@ -8,6 +8,7 @@ use {
 		extract::{Path, State},
 		http, Json,
 	},
+	color_eyre::eyre::Context,
 	gokz_rs::types::PlayerIdentifier,
 	sqlx::QueryBuilder,
 	std::sync::Arc,
@@ -20,6 +21,7 @@ use {
 	responses(
 		(status = 200, body = Player),
 		(status = 204, body = ()),
+		(status = 400, description = "An invalid player identifier was provided."),
 		(status = 500, body = Error),
 	),
 	params(
@@ -48,9 +50,11 @@ pub async fn ident(
 	let player = query
 		.build_query_as::<PlayerRow>()
 		.fetch_optional(state.db())
-		.await?
+		.await
+		.context("Failed to fetch players from database.")?
 		.ok_or(Error::NoContent)?
-		.try_into()?;
+		.try_into()
+		.context("Found invalid player in database.")?;
 
 	Ok(Json(player))
 }

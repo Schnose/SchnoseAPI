@@ -26,7 +26,11 @@ pub async fn select_players(
 ) -> Result<Option<Vec<Player>>> {
 	let mut query = QueryBuilder::new("SELECT * FROM players LIMIT ");
 	query.push_bind(limit as u64).push(" OFFSET ").push_bind(offset as i64);
-	let players = query.build_query_as().fetch_all(pool).await?;
+	let players = query
+		.build_query_as()
+		.fetch_all(pool)
+		.await
+		.context("Failed to fetch players from database.")?;
 
 	if players.is_empty() {
 		return Ok(None);

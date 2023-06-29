@@ -1,5 +1,6 @@
 use {
 	crate::{Error, Result},
+	color_eyre::eyre::Context,
 	gokz_rs::types::SteamID,
 	serde::{Deserialize, Serialize},
 	sqlx::FromRow,
@@ -24,8 +25,11 @@ impl TryFrom<MapperRow> for Mapper {
 	#[tracing::instrument(level = "TRACE", err(Debug))]
 	fn try_from(row: MapperRow) -> Result<Self> {
 		Ok(Self {
-			player: u32::try_from(row.player_id)?.try_into()?,
-			map_id: row.map_id.try_into()?,
+			player: u32::try_from(row.player_id)
+				.context("Found negative SteamID.")?
+				.try_into()
+				.context("Found invalid SteamID.")?,
+			map_id: row.map_id.try_into().context("Found negative MapID.")?,
 		})
 	}
 }

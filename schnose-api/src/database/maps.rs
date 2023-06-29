@@ -1,5 +1,6 @@
 use {
 	crate::{Error, Result},
+	color_eyre::eyre::Context,
 	gokz_rs::types::SteamID,
 	serde::{Deserialize, Serialize},
 	sqlx::{
@@ -39,17 +40,26 @@ impl TryFrom<MapRow> for Map {
 	#[tracing::instrument(level = "TRACE", err(Debug))]
 	fn try_from(row: MapRow) -> Result<Self> {
 		Ok(Self {
-			id: row.id.try_into()?,
+			id: row.id.try_into().context("Found negative MapID.")?,
 			name: row.name,
 			global: row.global,
-			workshop_id: if let Some(id) = row.workshop_id { Some(id.try_into()?) } else { None },
+			workshop_id: if let Some(id) = row.workshop_id {
+				Some(id.try_into().context("Found negative WorkshopID.")?)
+			} else {
+				None
+			},
 			filesize: if let Some(filesize) = row.workshop_id {
-				Some(filesize.try_into()?)
+				Some(filesize.try_into().context("Found negative filesize.")?)
 			} else {
 				None
 			},
 			approved_by: if let Some(steam_id) = row.workshop_id {
-				Some(u32::try_from(steam_id)?.try_into()?)
+				Some(
+					u32::try_from(steam_id)
+						.context("Found negative SteamID.")?
+						.try_into()
+						.context("Found invalid SteamID.")?,
+				)
 			} else {
 				None
 			},

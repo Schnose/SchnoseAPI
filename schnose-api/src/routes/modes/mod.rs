@@ -7,6 +7,7 @@ use {
 		Result,
 	},
 	axum::{extract::State, http, Json},
+	color_eyre::eyre::Context,
 	std::sync::Arc,
 };
 
@@ -26,10 +27,12 @@ pub async fn root(
 ) -> Result<Json<Vec<Mode>>> {
 	let modes = sqlx::query_as::<_, ModeRow>("SELECT * FROM modes")
 		.fetch_all(state.db())
-		.await?
+		.await
+		.context("Failed to fetch modes from database.")?
 		.into_iter()
 		.map(TryInto::try_into)
-		.collect::<Result<Vec<_>>>()?;
+		.collect::<Result<Vec<_>>>()
+		.context("Found invalid mode in database.")?;
 
 	assert_eq!(modes.len(), 3, "There should be 3 modes in the database.");
 

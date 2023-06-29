@@ -1,5 +1,6 @@
 use {
 	crate::{Error, Result},
+	color_eyre::eyre::Context,
 	gokz_rs::types::{Mode, SteamID},
 	serde::{Deserialize, Serialize},
 	sqlx::{
@@ -39,13 +40,16 @@ impl TryFrom<RecordRow> for Record {
 	#[tracing::instrument(level = "TRACE", err(Debug))]
 	fn try_from(row: RecordRow) -> Result<Self> {
 		Ok(Self {
-			id: row.id.try_into()?,
-			course_id: row.course_id.try_into()?,
-			mode: row.mode_id.try_into()?,
-			player: u32::try_from(row.player_id)?.try_into()?,
-			server_id: row.server_id.try_into()?,
+			id: row.id.try_into().context("Found negative RecordID.")?,
+			course_id: row.course_id.try_into().context("Found negative CourseID.")?,
+			mode: row.mode_id.try_into().context("Found invalid ModeID.")?,
+			player: u32::try_from(row.player_id)
+				.context("Found negative SteamID.")?
+				.try_into()
+				.context("Found invalid SteamID.")?,
+			server_id: row.server_id.try_into().context("Found negative ServerID.")?,
 			time: row.time,
-			teleports: row.teleports.try_into()?,
+			teleports: row.teleports.try_into().context("Found negative teleports.")?,
 			created_on: row.created_on,
 		})
 	}
