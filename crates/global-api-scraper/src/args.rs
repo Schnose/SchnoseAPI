@@ -21,7 +21,7 @@ pub struct Args {
 pub enum Data {
 	Players {
 		#[arg(long = "start")]
-		start_id: u32,
+		start_offset: u32,
 
 		/// Decrement the `start_id` each chunk
 		#[arg(long)]

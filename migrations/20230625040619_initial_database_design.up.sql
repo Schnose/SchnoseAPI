@@ -57,3 +57,6 @@ CREATE TABLE Records (
 	created_on TIMESTAMPTZ NOT NULL
 );
 
+CREATE INDEX records_date_index ON Records (created_on);
+CREATE INDEX records_player_date_index ON Records (player_id, created_on);
+
