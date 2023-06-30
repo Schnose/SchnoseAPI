@@ -1,0 +1,243 @@
+{
+  "db": "PostgreSQL",
+  "1a179f3390658cadca84164d449915e5c4361a66fc62b745130b1b50b65209a4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int2",
+          "Varchar",
+          "Int8"
+        ]
+      }
+    },
+    "query": "\n\t\tINSERT INTO servers\n\t\t\t(id, name, owned_by)\n\t\tVALUES\n\t\t\t($1, $2, $3)\n\t\t"
+  },
+  "38a41fc5b01bd66630e782873efb8b6aba86bbd9c569ca9dbde52bd0602c4dcf": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int2"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int2"
+        ]
+      }
+    },
+    "query": "SELECT id, name FROM maps WHERE id = $1"
+  },
+  "3e83a598a8988f283b98cada06cbee2fedb1c966288e4ca9eecdfbbe177ddb14": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "\n\t\tINSERT INTO players\n\t\t\t(id, name, is_banned)\n\t\tVALUES\n\t\t\t($1, $2, false)\n\t\tON CONFLICT (id) DO UPDATE\n\t\tSET name = $2, is_banned = false\n\t\t"
+  },
+  "6279df961848d5cf35bcd8b856a0c1f8dfaa291348a4f7c8d6129f70c1d072ba": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Varchar",
+          "Bool"
+        ]
+      }
+    },
+    "query": "\n\t\tINSERT INTO players\n\t\t\t(id, name, is_banned)\n\t\tVALUES\n\t\t\t($1, $2, $3)\n\t\t"
+  },
+  "6635f7705ec61f7d4f1f8e6c789db89a1f09a169c104920da7946ec756a25a55": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT id FROM players WHERE id = $1"
+  },
+  "6c171b3e824fd8056cf97fc2d66469558d35f5cc2be8fddb46dfafe6f02315ca": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int2"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id, name FROM servers WHERE name LIKE $1"
+  },
+  "9b30365adad475419a7dfa37774e0f291ee06cc3f7b3cdd00e627a6af3e1034e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int2"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id, name FROM maps WHERE name LIKE $1"
+  },
+  "a11e44e66beea399747f886fd1ebafa839a2bfeb321ed5dea9a8bada4dbab62f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT MAX(id) id FROM records"
+  },
+  "aaa889fb24935f27b2b3cc0db576ef39da6ed2e31da14c3c1eecce8428539044": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int2"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int2"
+        ]
+      }
+    },
+    "query": "SELECT id, name FROM servers WHERE id = $1"
+  },
+  "c99a194833f1e1b2c8dd0dda6cc553cafcf5752a176e5509f5bfcb42ad28736d": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4",
+          "Int2",
+          "Int8",
+          "Int2",
+          "Float8",
+          "Int2",
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "\n\t\t\tINSERT INTO records\n\t\t\t\t(id, course_id, mode_id, player_id, server_id, time, teleports, created_on)\n\t\t\tVALUES\n\t\t\t\t($1, $2, $3, $4, $5, $6, $7, $8)\n\t\t\t"
+  },
+  "d671aefc52579a4c894c5f11e8ebf34087418ecca79362a2750eb7db93e1572c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int2",
+          "Varchar",
+          "Bool",
+          "Int8",
+          "Int8",
+          "Timestamptz",
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "\n\t\tINSERT INTO maps\n\t\t\t(id, name, global, workshop_id, filesize, created_on, updated_on)\n\t\tVALUES\n\t\t\t($1, $2, $3, $4, $5, $6, $7)\n\t\t"
+  },
+  "dbb573a43659ca8cace0faa8ae912a01f074d7de02e5db96a2eec3d04edb668e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id FROM players WHERE name LIKE $1"
+  }
+}

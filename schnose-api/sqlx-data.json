@@ -1,0 +1,95 @@
+{
+  "db": "PostgreSQL",
+  "20e160e3dfd306efa6563a825ac86f3f77d81fe378c711720f2ba1351a10c2b6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id FROM maps WHERE name LIKE $1"
+  },
+  "736144a72f45db0a12f249269d2e5e40bb5fb592587f154404c14586549b121d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "map_name",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "stage",
+          "ordinal": 1,
+          "type_info": "Int2"
+        },
+        {
+          "name": "mode_id",
+          "ordinal": 2,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int2"
+        ]
+      }
+    },
+    "query": "\n\t\tSELECT\n\t\t\tm.name map_name,\n\t\t\tc.stage,\n\t\t\tf.mode_id\n\t\tFROM filters f\n\t\tJOIN courses c ON c.id = f.course_id\n\t\tJOIN maps m ON m.id = c.map_id\n\t\tWHERE map_id = $1\n\t\t"
+  },
+  "b3d25139127d32f7d769ec879b494145b0ee5f2527a4c54d500ba2e13fcc38b7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id FROM servers WHERE name LIKE $1"
+  },
+  "dbb573a43659ca8cace0faa8ae912a01f074d7de02e5db96a2eec3d04edb668e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id FROM players WHERE name LIKE $1"
+  }
+}

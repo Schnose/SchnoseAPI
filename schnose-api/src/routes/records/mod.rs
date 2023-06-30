@@ -240,5 +240,9 @@ pub async fn root(
 		.collect::<Result<Vec<Record>>>()
 		.context("Found invalid record in database.")?;
 
+	if records.is_empty() {
+		return Err(Error::NoContent);
+	}
+
 	Ok(Json(records))
 }

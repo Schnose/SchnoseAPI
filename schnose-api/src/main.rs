@@ -42,8 +42,8 @@ async fn main() -> Result<()> {
 		debug!(?route);
 	}
 
-	info!("SwaggerUI: {ip_address}/docs/swagger");
-	info!("OpenAPI Spec: {ip_address}/docs/spec.json");
+	info!("SwaggerUI: {ip_address}/api/docs/swagger");
+	info!("OpenAPI Spec: {ip_address}/api/docs/spec.json");
 
 	let app_state = Arc::new(AppState {
 		pool,

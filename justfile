@@ -26,6 +26,10 @@ doc:
 prepare:
 	cd ./schnose-api && cargo sqlx prepare
 
+# Prepare SQL migrations for the global-api-scraper
+prepare-scraper:
+	cd ./crates/global-api-scraper && cargo sqlx prepare
+
 # Run SQL migrations
 migrate:
 	cargo sqlx migrate run

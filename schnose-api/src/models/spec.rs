@@ -54,7 +54,7 @@ pub struct SchnoseAPI;
 impl SchnoseAPI {
 	#[tracing::instrument(level = "TRACE")]
 	pub fn swagger() -> SwaggerUi {
-		SwaggerUi::new("/docs/swagger").url("/docs/spec.json", Self::openapi())
+		SwaggerUi::new("/api/docs/swagger").url("/api/docs/spec.json", Self::openapi())
 	}
 
 	#[tracing::instrument(level = "TRACE")]

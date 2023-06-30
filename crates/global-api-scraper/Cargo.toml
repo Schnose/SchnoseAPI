@@ -9,7 +9,7 @@ tracing-subscriber = { workspace = true }
 just-trace = { path = "../just-trace" }
 color-eyre = { workspace = true }
 tokio = { workspace = true }
-sqlx = { workspace = true, features = ["mysql", "postgres", "sqlite"] }
+sqlx = { workspace = true, features = ["mysql", "postgres", "sqlite", "offline"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 toml = { workspace = true }
