@@ -24,8 +24,16 @@ async fn main() -> Result<()> {
 
 	let Config {
 		database_url,
-		ip_address,
+		mut ip_address,
 	} = Config::load(&args).await.context("Failed to load config.")?;
+
+	if args.public {
+		ip_address.set_ip([0, 0, 0, 0].into());
+	}
+
+	if let Some(port) = args.port {
+		ip_address.set_port(port);
+	}
 
 	debug!("Connecting to database...");
 
