@@ -30,6 +30,8 @@ async fn main() -> Result<()> {
 	debug!("Connecting to database...");
 
 	let pool = PgPoolOptions::new()
+		.min_connections(4)
+		.max_connections(16)
 		.connect(&database_url)
 		.await
 		.context("Failed to connect to database.")?;

@@ -33,7 +33,7 @@ pub struct Params {
 #[utoipa::path(
 	get,
 	tag = "Maps",
-	path = "/maps",
+	path = "/api/maps",
 	responses(
 		(status = 200, body = Vec<MapModel>),
 		(status = 204),

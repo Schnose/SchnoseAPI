@@ -1008,9 +1008,9 @@ dependencies = [
 
 [[package]]
 name = "gokz_rs"
-version = "0.21.13"
+version = "0.21.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60d1b0c4ee012e91ae4edef4e0fe7d15048e0ef9cebd544249b89b4aa1bf48cd"
+checksum = "7c681adf60080894a3efa7db76be30e0fad5f5e9c67d25c3f0aa726d12bc69f4"
 dependencies = [
  "chrono",
  "futures",

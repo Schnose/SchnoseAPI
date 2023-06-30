@@ -4,7 +4,7 @@ use axum::{http, Json};
 #[utoipa::path(
 	get,
 	tag = "Health",
-	path = "/health",
+	path = "/api/health",
 	responses(
 		(status = 200, description = "Healthcheck for the API", body = &'static str),
 	),

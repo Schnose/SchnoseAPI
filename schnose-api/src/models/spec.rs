@@ -31,6 +31,7 @@ use {
 		routes::servers::root,
 		routes::servers::ident::ident,
 		routes::filters::map::map,
+		routes::records::root,
 		routes::records::id::id,
 	),
 

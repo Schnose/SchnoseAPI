@@ -12,7 +12,7 @@ use {
 #[utoipa::path(
 	get,
 	tag = "Filters",
-	path = "/filters/map/{ident}",
+	path = "/api/filters/map/{ident}",
 	responses(
 		(status = 200, body = Vec<Filter>),
 		(status = 400, description = "An invalid map identifier was provided."),

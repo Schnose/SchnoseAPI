@@ -28,7 +28,7 @@ pub struct Params {
 #[utoipa::path(
 	get,
 	tag = "Players",
-	path = "/players",
+	path = "/api/players",
 	responses(
 		(status = 200, body = Vec<Player>),
 		(status = 204),

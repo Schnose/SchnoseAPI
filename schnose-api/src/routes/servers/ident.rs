@@ -17,7 +17,7 @@ use {
 #[utoipa::path(
 	get,
 	tag = "Servers",
-	path = "/servers/{ident}",
+	path = "/api/servers/{ident}",
 	responses(
 		(status = 200, body = Server),
 		(status = 400, description = "An invalid server identifier was provided."),

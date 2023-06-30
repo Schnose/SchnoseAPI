@@ -33,6 +33,7 @@ pub struct RecordRow {
 pub struct Record {
 	pub id: u32,
 	pub course: Course,
+	pub map_name: String,
 	#[schema(value_type = String)]
 	pub mode: Mode,
 	#[schema(value_type = String)]
@@ -53,6 +54,7 @@ impl TryFrom<RecordRow> for Record {
 		Ok(Self {
 			id: row.id.try_into().context("Found negative RecordID.")?,
 			course: row.course.0.try_into().context("Found invalid course in database.")?,
+			map_name: row.map_name,
 			mode: row.mode_id.try_into().context("Found invalid ModeID.")?,
 			steam_id: u32::try_from(row.player_id)
 				.context("Found negative SteamID.")?

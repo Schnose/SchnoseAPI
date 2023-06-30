@@ -17,7 +17,7 @@ use {
 #[utoipa::path(
 	get,
 	tag = "Players",
-	path = "/players/{ident}",
+	path = "/api/players/{ident}",
 	responses(
 		(status = 200, body = Player),
 		(status = 204),

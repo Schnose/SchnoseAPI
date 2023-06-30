@@ -15,7 +15,7 @@ use {
 #[utoipa::path(
 	get,
 	tag = "Modes",
-	path = "/modes/{ident}",
+	path = "/api/modes/{ident}",
 	responses(
 		(status = 200, body = Player),
 		(status = 400, description = "An invalid mode was provided."),

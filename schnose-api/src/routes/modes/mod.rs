@@ -14,7 +14,7 @@ use {
 #[utoipa::path(
 	get,
 	tag = "Modes",
-	path = "/modes",
+	path = "/api/modes",
 	responses(
 		(status = 200, body = Vec<Mode>),
 		(status = 500, body = Error),

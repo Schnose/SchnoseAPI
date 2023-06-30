@@ -17,7 +17,7 @@ use {
 #[utoipa::path(
 	get,
 	tag = "Maps",
-	path = "/maps/{ident}",
+	path = "/api/maps/{ident}",
 	responses(
 		(status = 200, body = Player),
 		(status = 400, description = "An invalid map identifier was provided."),

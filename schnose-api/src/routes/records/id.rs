@@ -15,7 +15,7 @@ use {
 #[utoipa::path(
 	get,
 	tag = "Records",
-	path = "/records/{id}",
+	path = "/api/records/{id}",
 	responses(
 		(status = 200, body = Record),
 		(status = 204),
