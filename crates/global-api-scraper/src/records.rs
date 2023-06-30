@@ -1,7 +1,7 @@
 use {
 	crate::{ensure_map, ensure_server, update_player},
 	color_eyre::{
-		eyre::{bail as yeet, Context},
+		eyre::{bail as yeet, Context, ContextCompat},
 		Result,
 	},
 	gokz_rs::{error::Error as GokzError, global_api},
@@ -15,11 +15,22 @@ pub const DELAY: Duration = Duration::from_millis(727);
 
 #[tracing::instrument(level = "TRACE", err(Debug))]
 pub async fn fetch_records(
-	start_id: u32,
+	start_id: Option<u32>,
 	gokz_client: &gokz_rs::Client,
 	pool: &PgPool,
 ) -> Result<()> {
-	let mut record_id = start_id;
+	let mut record_id = match start_id {
+		Some(record_id) => record_id,
+		None => sqlx::query!("SELECT MAX(id) id FROM records")
+			.fetch_one(pool)
+			.await
+			.context("Failed to fetch RecordID from database.")?
+			.id
+			.context("No records in database yet.")?
+			.try_into()
+			.context("Found negative RecordID in database.")?,
+	};
+
 	loop {
 		tokio::time::sleep(DELAY).await;
 
@@ -30,7 +41,7 @@ pub async fn fetch_records(
 				GokzError::Http {
 					code, ..
 				} if matches!(code.as_u16(), 500..=502) => {
-					warn!(%record_id, "No new records... sleeping {DELAY:?}.");
+					warn!(%record_id, "No new records... sleeping {DELAY:?}");
 					continue;
 				}
 

@@ -36,7 +36,7 @@ pub enum Data {
 
 	Records {
 		#[arg(long = "start")]
-		start_id: u32,
+		start_id: Option<u32>,
 	},
 
 	Mappers,
