@@ -24,6 +24,7 @@ pub struct Params {
 	pub name: Option<String>,
 	#[param(value_type = Option<String>)]
 	pub mapper: Option<PlayerIdentifier>,
+	pub global: Option<bool>,
 	pub created_after: Option<DateTime<Utc>>,
 	pub created_before: Option<DateTime<Utc>>,
 	pub offset: Option<i64>,
@@ -48,6 +49,7 @@ pub async fn root(
 	Query(Params {
 		name,
 		mapper,
+		global,
 		created_after,
 		created_before,
 		offset,
@@ -78,6 +80,30 @@ pub async fn root(
 		filter.and();
 	}
 
+	if let Some(mapper) = mapper {
+		query.push(filter);
+
+		match mapper {
+			PlayerIdentifier::SteamID(steam_id) => {
+				query.push("mapper.player_id = ").push_bind(steam_id.community_id() as i64);
+			}
+
+			PlayerIdentifier::Name(name) => {
+				query
+					.push("mapper.player_id = (SELECT id FROM players p WHERE p.name ILIKE ")
+					.push_bind(format!("%{name}%"))
+					.push(" LIMIT 1)");
+			}
+		};
+
+		filter.and();
+	}
+
+	if let Some(global) = global {
+		query.push(filter).push("map.global = ").push_bind(global);
+		filter.and();
+	}
+
 	match (created_after, created_before) {
 		(None, None) => {}
 
@@ -102,23 +128,6 @@ pub async fn root(
 				.push_bind(created_after);
 		}
 	};
-
-	if let Some(mapper) = mapper {
-		query.push(filter);
-
-		match mapper {
-			PlayerIdentifier::SteamID(steam_id) => {
-				query.push("mapper.player_id = ").push_bind(steam_id.community_id() as i64);
-			}
-
-			PlayerIdentifier::Name(name) => {
-				query
-					.push("mapper.player_id = (SELECT id FROM players p WHERE p.name ILIKE ")
-					.push_bind(format!("%{name}%"))
-					.push(" LIMIT 1)");
-			}
-		};
-	}
 
 	query
 		.push(" GROUP BY map.id ")
