@@ -21,14 +21,18 @@ pub async fn fetch_records(
 ) -> Result<()> {
 	let mut record_id = match start_id {
 		Some(record_id) => record_id,
-		None => sqlx::query!("SELECT MAX(id) id FROM records")
-			.fetch_one(pool)
-			.await
-			.context("Failed to fetch RecordID from database.")?
-			.id
-			.context("No records in database yet.")?
-			.try_into()
-			.context("Found negative RecordID in database.")?,
+		None => {
+			let max_id: u32 = sqlx::query!("SELECT MAX(id) id FROM records")
+				.fetch_one(pool)
+				.await
+				.context("Failed to fetch RecordID from database.")?
+				.id
+				.context("No records in database yet.")?
+				.try_into()
+				.context("Found negative RecordID in database.")?;
+
+			max_id + 1
+		}
 	};
 
 	loop {
