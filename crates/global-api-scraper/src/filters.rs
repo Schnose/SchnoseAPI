@@ -4,7 +4,7 @@ use {
 	sqlx::{PgPool, QueryBuilder},
 };
 
-#[tracing::instrument(level = "TRACE", err(Debug))]
+#[tracing::instrument(level = "TRACE", skip(gokz_client, pool), err(Debug))]
 pub async fn fetch_filters(gokz_client: &gokz_rs::Client, pool: &PgPool) -> Result<usize> {
 	let mut filters: Vec<(i32, i16)> = Vec::new();
 

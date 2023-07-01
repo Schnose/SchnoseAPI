@@ -8,7 +8,7 @@ use {
 	tracing::{info, trace},
 };
 
-#[tracing::instrument(level = "TRACE", err(Debug))]
+#[tracing::instrument(level = "TRACE", skip(gokz_client, pool), err(Debug))]
 pub async fn fetch_players(
 	start_offset: u32,
 	backwards: bool,

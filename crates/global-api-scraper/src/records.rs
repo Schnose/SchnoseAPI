@@ -13,7 +13,7 @@ use {
 /// Time to wait between each API call
 pub const DELAY: Duration = Duration::from_millis(727);
 
-#[tracing::instrument(level = "TRACE", err(Debug))]
+#[tracing::instrument(level = "TRACE", skip(gokz_client, pool), err(Debug))]
 pub async fn fetch_records(
 	start_id: Option<u32>,
 	gokz_client: &gokz_rs::Client,

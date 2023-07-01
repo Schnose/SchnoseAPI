@@ -6,7 +6,7 @@ use {
 	tracing::trace,
 };
 
-#[tracing::instrument(level = "TRACE", err(Debug))]
+#[tracing::instrument(level = "TRACE", skip(gokz_client, pool), err(Debug))]
 pub async fn fetch_maps(gokz_client: &gokz_rs::Client, pool: &PgPool) -> Result<usize> {
 	let mut total = 0;
 
