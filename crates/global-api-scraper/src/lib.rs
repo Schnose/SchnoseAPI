@@ -26,7 +26,7 @@ pub use mappers::fetch_mappers;
 mod filters;
 pub use filters::fetch_filters;
 
-#[tracing::instrument(level = "TRACE")]
+#[tracing::instrument(level = "TRACE", skip(gokz_client, pool))]
 pub async fn ensure_player(
 	player: PlayerIdentifier,
 	gokz_client: &gokz_rs::Client,
@@ -79,7 +79,7 @@ pub async fn ensure_player(
 	Ok(player.steam_id)
 }
 
-#[tracing::instrument(level = "TRACE")]
+#[tracing::instrument(level = "TRACE", skip(gokz_client, pool))]
 pub async fn ensure_map(
 	map: MapIdentifier,
 	gokz_client: &gokz_rs::Client,
@@ -184,7 +184,7 @@ pub async fn ensure_map(
 	Ok((global_api_map.id, global_api_map.name))
 }
 
-#[tracing::instrument(level = "TRACE")]
+#[tracing::instrument(level = "TRACE", skip(gokz_client, pool))]
 pub async fn ensure_server(
 	server: ServerIdentifier,
 	gokz_client: &gokz_rs::Client,
@@ -238,13 +238,8 @@ pub async fn ensure_server(
 	Ok((server.id, server.name))
 }
 
-#[tracing::instrument(level = "TRACE")]
-pub async fn update_player(
-	steam_id: SteamID,
-	player_name: &str,
-	gokz_client: &gokz_rs::Client,
-	pool: &PgPool,
-) -> Result<()> {
+#[tracing::instrument(level = "TRACE", skip(pool))]
+pub async fn update_player(steam_id: SteamID, player_name: &str, pool: &PgPool) -> Result<()> {
 	sqlx::query! {
 		r#"
 		INSERT INTO players

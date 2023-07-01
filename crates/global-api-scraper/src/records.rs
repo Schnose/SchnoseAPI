@@ -60,7 +60,7 @@ pub async fn fetch_records(
 		ensure_server(record.server_id.into(), gokz_client, pool).await?;
 
 		// Update player information
-		update_player(record.steam_id, &record.player_name, gokz_client, pool).await?;
+		update_player(record.steam_id, &record.player_name, pool).await?;
 
 		let course_id = record.map_id as i32 * 100 + record.stage as i32;
 
