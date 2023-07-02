@@ -49,7 +49,7 @@ pub async fn fetch_records(
 					continue;
 				}
 
-				error => yeet!("GlobalAPI request failed: {error:?}"),
+				error => yeet!("GlobalAPI request failed ({record_id}): {error:?}"),
 			},
 		};
 

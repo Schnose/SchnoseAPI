@@ -304,10 +304,10 @@ pub async fn insert_elastic_records(
 			player_cache.insert(record.steam_id);
 		}
 
-		let Some(map) = maps.iter().find(|map| {
-			map.name == record.map_name
-			|| map.name.contains(&record.map_name)
-		}) else {
+		let Some(map) = maps
+			.iter()
+			.find(|map| map.name == record.map_name || map.name.contains(&record.map_name))
+		else {
 			continue;
 		};
 
@@ -327,8 +327,7 @@ pub async fn insert_elastic_records(
 		course_cache.insert(course_id);
 
 		let Some(server) = servers.iter().find(|server| {
-			server.name == record.server_name
-			|| server.name.contains(&record.server_name)
+			server.name == record.server_name || server.name.contains(&record.server_name)
 		}) else {
 			continue;
 		};
