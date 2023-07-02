@@ -1,17 +1,17 @@
 use {
 	crate::{ensure_map, ensure_server, update_player},
 	color_eyre::{
-		eyre::{bail as yeet, Context, ContextCompat},
+		eyre::{Context, ContextCompat},
 		Result,
 	},
-	gokz_rs::{error::Error as GokzError, global_api},
+	gokz_rs::global_api,
 	sqlx::PgPool,
 	tokio::time::Duration,
-	tracing::warn,
+	tracing::{debug, warn},
 };
 
 /// Time to wait between each API call
-pub const DELAY: Duration = Duration::from_millis(727);
+pub const DELAY: Duration = Duration::from_millis(800);
 
 #[tracing::instrument(level = "TRACE", skip(gokz_client, pool), err(Debug))]
 pub async fn fetch_records(
@@ -40,17 +40,11 @@ pub async fn fetch_records(
 
 		let record = match global_api::get_record(record_id, gokz_client).await {
 			Ok(record) => record,
-			Err(error) => match error {
-				// API is down or record does not exist (don't care)
-				GokzError::Http {
-					code, ..
-				} if matches!(code.as_u16(), 500..=502) => {
-					warn!(%record_id, "No new records... sleeping {DELAY:?}");
-					continue;
-				}
-
-				error => yeet!("GlobalAPI request failed ({record_id}): {error:?}"),
-			},
+			Err(error) => {
+				warn!(%record_id, "No new records... sleeping {DELAY:?}");
+				debug!(?error);
+				continue;
+			}
 		};
 
 		// Make sure map exists in the database
