@@ -61,8 +61,8 @@ pub async fn root(
 		r#"
 		SELECT
 			map.*,
-			JSON_AGG(course.* ORDER BY course.id) courses,
-			JSON_AGG(p_mapper.* ORDER BY p_mapper.name) mappers
+			JSON_AGG(DISTINCT course.*) courses,
+			JSON_AGG(DISTINCT p_mapper.*) mappers
 		FROM maps map
 		JOIN courses course
 			ON course.map_id = map.id
